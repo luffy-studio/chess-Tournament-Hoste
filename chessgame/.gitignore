@@ -1,24 +1,54 @@
-﻿# Dependencies
+# Dependencies
 node_modules/
-/.pnp
+*/node_modules/
+*/*/node_modules/
+.pnp
 .pnp.js
 
-# Testing
-/coverage
+# Build and Production Artifacts
+dist/
+*/dist/
+*/*/dist/
+build/
+*/build/
+*/*/build/
+*.tsbuildinfo
 
-# Production
-/build
-/dist
+# Database and SQLite files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+prisma/*.db
+backend/prisma/*.db
 
-# Misc
-.DS_Store
+# Environment and Secrets
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-*.log
+*/.env
+*/*/.env
 
-# Editor directories and files
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+*/coverage/
+
+# Misc & OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.temp
+
+# Editor directories
 .vscode/
 .idea/
 *.suo
@@ -26,11 +56,3 @@ node_modules/
 *.njsproj
 *.sln
 *.sw?
-
-# OS files
-Thumbs.db
-Desktop.ini
-
-# Temporary files
-*.tmp
-*.temp

@@ -1,0 +1,17 @@
+{
+  "name": "tournament-engine",
+  "version": "1.0.0",
+  "description": "FIDE Compliant Chess Tournament Pairing, Rating and Tie-break Engine",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.6.1"
+  }
+}
