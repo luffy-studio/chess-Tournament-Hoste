@@ -38,6 +38,13 @@ export interface ArenaGame {
   drawOffer: 'w' | 'b' | null;
   lastMoveTimestamp: number | null;
   createdAt: number;
+  tournamentId?: string | null;
+  matchId?: string | null;
+  disconnectTimer?: {
+    disconnectedColor: 'w' | 'b';
+    secondsLeft: number;
+    interval: NodeJS.Timeout;
+  } | null;
 }
 
 class ArenaManager {
@@ -51,13 +58,24 @@ class ArenaManager {
   }
 
   createGame(params: {
+    roomId?: string;
     timeControl: { initial: number; increment: number };
     creatorName: string;
     creatorId: string;
     socketId: string;
     preferredColor?: 'w' | 'b' | 'random';
+    tournamentId?: string;
+    matchId?: string;
   }): { game: ArenaGame; playerColor: 'w' | 'b' } {
-    const roomId = 'arena-' + Math.random().toString(36).substring(2, 9);
+    const roomId = params.roomId || ('arena-' + Math.random().toString(36).substring(2, 9));
+
+    // If game already exists (e.g. bound to tournament match)
+    const existingGame = this.games.get(roomId);
+    if (existingGame) {
+      const assigned = existingGame.white?.id === params.creatorId ? 'w' : 'b';
+      return { game: existingGame, playerColor: assigned };
+    }
+
     const chess = new Chess();
 
     let assignedColor: 'w' | 'b' = 'w';
@@ -90,6 +108,9 @@ class ArenaManager {
       drawOffer: null,
       lastMoveTimestamp: null,
       createdAt: Date.now(),
+      tournamentId: params.tournamentId || null,
+      matchId: params.matchId || null,
+      disconnectTimer: null,
     };
 
     this.games.set(roomId, game);
@@ -110,12 +131,36 @@ class ArenaManager {
       game.white.socketId = player.socketId;
       game.white.connected = true;
       this.socketToPlayer.set(player.socketId, { roomId, playerId: player.id });
+
+      // Cancel disconnection countdown if white was disconnected
+      if (game.disconnectTimer && game.disconnectTimer.disconnectedColor === 'w') {
+        clearInterval(game.disconnectTimer.interval);
+        game.disconnectTimer = null;
+        if (this.io) {
+          this.io.to(`arena:${roomId}`).emit('arena:playerReconnected', {
+            reconnectedColor: 'w',
+          });
+        }
+      }
+
       return { game, role: 'w' };
     }
     if (game.black && game.black.id === player.id) {
       game.black.socketId = player.socketId;
       game.black.connected = true;
       this.socketToPlayer.set(player.socketId, { roomId, playerId: player.id });
+
+      // Cancel disconnection countdown if black was disconnected
+      if (game.disconnectTimer && game.disconnectTimer.disconnectedColor === 'b') {
+        clearInterval(game.disconnectTimer.interval);
+        game.disconnectTimer = null;
+        if (this.io) {
+          this.io.to(`arena:${roomId}`).emit('arena:playerReconnected', {
+            reconnectedColor: 'b',
+          });
+        }
+      }
+
       return { game, role: 'b' };
     }
 
@@ -208,14 +253,23 @@ class ArenaManager {
     game.winner = flaggedColor === 'w' ? 'b' : 'w';
     game.endReason = 'timeout';
 
+    if (game.disconnectTimer) {
+      clearInterval(game.disconnectTimer.interval);
+      game.disconnectTimer = null;
+    }
+
+    const publicState = this.getPublicGameState(game);
+
     if (this.io) {
       this.io.to(`arena:${roomId}`).emit('arena:gameOver', {
         winner: game.winner,
         endReason: 'timeout',
         message: `${flaggedColor === 'w' ? 'White' : 'Black'} ran out of time!`,
-        game: this.getPublicGameState(game),
+        game: publicState,
       });
     }
+
+    this.recordTournamentResult(game);
   }
 
   makeMove(
@@ -264,7 +318,7 @@ class ArenaManager {
         timestamp: Date.now(),
       };
       game.moves.push(arenaMove);
-      game.drawOffer = null; // Clear any pending draw offer
+      game.drawOffer = null; // Clear any pending draw offer on move
 
       // Check game termination states
       if (game.chess.isCheckmate()) {
@@ -280,9 +334,15 @@ class ArenaManager {
         else game.endReason = 'fifty_move_rule';
       }
 
-      if (game.status === 'completed' && this.timerIntervals.has(roomId)) {
-        clearInterval(this.timerIntervals.get(roomId)!);
-        this.timerIntervals.delete(roomId);
+      if (game.status === 'completed') {
+        if (this.timerIntervals.has(roomId)) {
+          clearInterval(this.timerIntervals.get(roomId)!);
+          this.timerIntervals.delete(roomId);
+        }
+        if (game.disconnectTimer) {
+          clearInterval(game.disconnectTimer.interval);
+          game.disconnectTimer = null;
+        }
       }
 
       const publicState = this.getPublicGameState(game);
@@ -312,6 +372,10 @@ class ArenaManager {
         }
       }
 
+      if (game.status === 'completed') {
+        this.recordTournamentResult(game);
+      }
+
       return { success: true, game: publicState };
     } catch (err: any) {
       return { success: false, error: err.message || 'Invalid move' };
@@ -333,6 +397,10 @@ class ArenaManager {
       clearInterval(this.timerIntervals.get(roomId)!);
       this.timerIntervals.delete(roomId);
     }
+    if (game.disconnectTimer) {
+      clearInterval(game.disconnectTimer.interval);
+      game.disconnectTimer = null;
+    }
 
     const publicState = this.getPublicGameState(game);
 
@@ -345,12 +413,19 @@ class ArenaManager {
       });
     }
 
+    this.recordTournamentResult(game);
+
     return { success: true, game: publicState };
   }
 
   offerDraw(roomId: string, playerId: string): { success: boolean; error?: string } {
     const game = this.games.get(roomId);
     if (!game || game.status !== 'in_progress') return { success: false, error: 'Cannot offer draw' };
+
+    // Prevent repeated draw offer spam
+    if (game.drawOffer !== null) {
+      return { success: false, error: 'A draw offer is already pending' };
+    }
 
     const playerColor = game.white?.id === playerId ? 'w' : game.black?.id === playerId ? 'b' : null;
     if (!playerColor) return { success: false, error: 'Not a player in this game' };
@@ -391,6 +466,10 @@ class ArenaManager {
         clearInterval(this.timerIntervals.get(roomId)!);
         this.timerIntervals.delete(roomId);
       }
+      if (game.disconnectTimer) {
+        clearInterval(game.disconnectTimer.interval);
+        game.disconnectTimer = null;
+      }
 
       const publicState = this.getPublicGameState(game);
 
@@ -398,17 +477,22 @@ class ArenaManager {
         this.io.to(`arena:${roomId}`).emit('arena:gameOver', {
           winner: 'draw',
           endReason: 'agreement',
-          message: 'Draw agreed by mutual consent.',
+          message: 'Both players have agreed to a draw.',
           game: publicState,
         });
       }
 
+      this.recordTournamentResult(game);
+
       return { success: true, game: publicState };
     } else {
+      const rejectingColor = playerColor;
       game.drawOffer = null;
+
       if (this.io) {
         this.io.to(`arena:${roomId}`).emit('arena:drawDeclined', {
-          by: playerColor,
+          by: rejectingColor,
+          message: 'Draw offer rejected.',
         });
       }
       return { success: true, game: this.getPublicGameState(game) };
@@ -422,10 +506,13 @@ class ArenaManager {
     const game = this.games.get(ref.roomId);
     if (!game) return;
 
+    let disconnectedColor: 'w' | 'b' | null = null;
     if (game.white?.socketId === socketId) {
       game.white.connected = false;
+      disconnectedColor = 'w';
     } else if (game.black?.socketId === socketId) {
       game.black.connected = false;
+      disconnectedColor = 'b';
     } else {
       game.spectators = game.spectators.filter((s) => s.socketId !== socketId);
     }
@@ -439,6 +526,127 @@ class ArenaManager {
     }
 
     this.socketToPlayer.delete(socketId);
+
+    // If game is in progress and a player disconnected, start authoritative 50s countdown
+    if (game.status === 'in_progress' && disconnectedColor) {
+      // Clear previous disconnect timer if any
+      if (game.disconnectTimer) {
+        clearInterval(game.disconnectTimer.interval);
+        game.disconnectTimer = null;
+      }
+
+      let secondsLeft = 50;
+      const targetColor = disconnectedColor;
+
+      // Broadcast initial 50-second disconnection notification
+      if (this.io) {
+        this.io.to(`arena:${ref.roomId}`).emit('arena:disconnectCountdown', {
+          disconnectedColor: targetColor,
+          secondsLeft,
+        });
+      }
+
+      const interval = setInterval(() => {
+        const currentGame = this.games.get(ref.roomId);
+        if (!currentGame || currentGame.status !== 'in_progress') {
+          clearInterval(interval);
+          return;
+        }
+
+        secondsLeft -= 1;
+        if (secondsLeft > 0) {
+          if (this.io) {
+            this.io.to(`arena:${ref.roomId}`).emit('arena:disconnectCountdown', {
+              disconnectedColor: targetColor,
+              secondsLeft,
+            });
+          }
+        } else {
+          // 50 SECONDS EXPIRED -> AUTOMATIC ABANDONMENT FORFEIT
+          clearInterval(interval);
+          currentGame.disconnectTimer = null;
+          this.handleAbandonment(ref.roomId, targetColor);
+        }
+      }, 1000);
+
+      game.disconnectTimer = {
+        disconnectedColor: targetColor,
+        secondsLeft,
+        interval,
+      };
+    }
+  }
+
+  private handleAbandonment(roomId: string, disconnectedColor: 'w' | 'b') {
+    const game = this.games.get(roomId);
+    if (!game || game.status !== 'in_progress') return;
+
+    game.status = 'completed';
+    game.winner = disconnectedColor === 'w' ? 'b' : 'w';
+    game.endReason = 'abandonment';
+
+    if (this.timerIntervals.has(roomId)) {
+      clearInterval(this.timerIntervals.get(roomId)!);
+      this.timerIntervals.delete(roomId);
+    }
+    if (game.disconnectTimer) {
+      clearInterval(game.disconnectTimer.interval);
+      game.disconnectTimer = null;
+    }
+
+    const winnerName = game.winner === 'w' ? game.white?.name : game.black?.name;
+    const opponentName = disconnectedColor === 'w' ? game.white?.name : game.black?.name;
+    const publicState = this.getPublicGameState(game);
+
+    if (this.io) {
+      this.io.to(`arena:${roomId}`).emit('arena:gameOver', {
+        winner: game.winner,
+        endReason: 'abandonment',
+        message: 'Opponent disconnected for more than 50 seconds.',
+        winnerName,
+        opponentName,
+        game: publicState,
+      });
+    }
+
+    this.recordTournamentResult(game);
+  }
+
+  private async recordTournamentResult(game: ArenaGame) {
+    if (!game.tournamentId || !game.matchId) return;
+
+    try {
+      const { prisma } = require('../index');
+      const { recalculateParticipantScores, broadcastTournamentUpdate } = require('../utils/tournamentUtils');
+
+      let resultStr: 'W' | 'L' | 'D' | null = null;
+      if (game.winner === 'w') resultStr = 'W';
+      else if (game.winner === 'b') resultStr = 'L';
+      else if (game.winner === 'draw') resultStr = 'D';
+
+      if (!resultStr) return;
+
+      const match = await prisma.match.findUnique({
+        where: { id: game.matchId },
+      });
+
+      if (match && !match.resultConfirmed) {
+        await prisma.match.update({
+          where: { id: game.matchId },
+          data: {
+            result: resultStr,
+            resultDetail: game.endReason,
+            resultEnteredAt: new Date(),
+            lastUpdatedBy: 'Online Arena Engine',
+          },
+        });
+
+        await recalculateParticipantScores(game.tournamentId);
+        await broadcastTournamentUpdate(game.tournamentId);
+      }
+    } catch (err) {
+      console.error('[ARENA] Failed to record tournament match result:', err);
+    }
   }
 
   getGame(roomId: string): ArenaGame | null {
@@ -455,6 +663,8 @@ class ArenaManager {
       winner: game.winner,
       endReason: game.endReason,
       timeControl: game.timeControl,
+      tournamentId: game.tournamentId || null,
+      matchId: game.matchId || null,
       white: game.white
         ? {
             id: game.white.id,
@@ -476,6 +686,12 @@ class ArenaManager {
       spectatorsCount: game.spectators.length,
       moves: game.moves,
       drawOffer: game.drawOffer,
+      disconnectCountdown: game.disconnectTimer
+        ? {
+            disconnectedColor: game.disconnectTimer.disconnectedColor,
+            secondsLeft: game.disconnectTimer.secondsLeft,
+          }
+        : null,
       createdAt: game.createdAt,
     };
   }

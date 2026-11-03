@@ -13,8 +13,8 @@ export const RoyalCard: React.FC<RoyalCardProps> = ({
   ...props
 }) => {
   const baseClasses = interactive
-    ? 'bg-[#2E2925] hover:bg-[#38312B] border border-[#514538] hover:border-[#B18A52]/60 rounded-[14px] p-5 sm:p-6 transition-all duration-150 shadow-[0_2px_8px_rgba(0,0,0,0.25)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.35)]'
-    : 'bg-[#2E2925] border border-[#514538] rounded-[14px] p-5 sm:p-6 shadow-[0_2px_8px_rgba(0,0,0,0.25)]'
+    ? 'bg-[#FFFFFF] hover:bg-[#FAF6F2] border border-[#DED1BD] hover:border-[#B08401] rounded-[14px] p-5 sm:p-6 transition-all duration-150 shadow-[0_1px_3px_rgba(104,59,43,0.05),0_4px_12px_rgba(104,59,43,0.03)] hover:shadow-[0_4px_16px_rgba(104,59,43,0.08)]'
+    : 'bg-[#FFFFFF] border border-[#DED1BD] rounded-[14px] p-5 sm:p-6 shadow-[0_1px_3px_rgba(104,59,43,0.05),0_4px_12px_rgba(104,59,43,0.03)]'
 
   return (
     <div className={`${baseClasses} ${className}`} {...props}>

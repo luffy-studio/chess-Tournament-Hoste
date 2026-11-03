@@ -17,11 +17,11 @@ export const RoyalButton: React.FC<RoyalButtonProps> = ({
 }) => {
   const variantStyles = {
     primary:
-      'bg-[#B18A52] hover:bg-[#C49D63] text-[#24211E] font-semibold border border-[#B18A52] shadow-sm',
+      'bg-[#B08401] hover:bg-[#997200] text-[#FAF6F2] font-semibold border border-[#B08401] shadow-sm',
     secondary:
-      'bg-[#302A25] hover:bg-[#38312B] text-[#F3EDE3] border border-[#514538] hover:border-[#B18A52]/60 shadow-sm',
+      'bg-[#DED1BD] hover:bg-[#D4C5AE] text-[#683B2B] border border-[#C9BAA3] hover:border-[#683B2B] shadow-sm font-semibold',
     gold:
-      'bg-[#B18A52] hover:bg-[#C49D63] text-[#24211E] font-semibold border border-[#B18A52] shadow-sm',
+      'bg-[#B08401] hover:bg-[#997200] text-[#FAF6F2] font-semibold border border-[#B08401] shadow-sm',
   }
 
   const baseStyle =

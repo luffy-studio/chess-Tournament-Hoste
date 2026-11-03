@@ -28,7 +28,6 @@ export const ConnectionBadge: React.FC<ConnectionBadgeProps> = ({
     const onConnect = () => setStatus('connected');
     const onDisconnect = () => setStatus('disconnected');
     const onConnectError = () => {
-      // If was connected or trying to reconnect, mark as reconnecting/disconnected
       setStatus((prev) => (prev === 'connected' ? 'reconnecting' : 'disconnected'));
     };
     const onReconnectAttempt = () => setStatus('reconnecting');
@@ -45,7 +44,6 @@ export const ConnectionBadge: React.FC<ConnectionBadgeProps> = ({
       socket.io.on('reconnect_failed', onReconnectFailed);
     }
 
-    // Set initial status
     setStatus(socket.connected ? 'connected' : 'connecting');
 
     return () => {
@@ -70,23 +68,23 @@ export const ConnectionBadge: React.FC<ConnectionBadgeProps> = ({
       tooltip: 'Real-time WebSocket connection verified',
     },
     connecting: {
-      dot: 'bg-[#B18A52] animate-pulse',
-      text: 'text-[#B18A52]',
-      bg: 'bg-[#B18A52]/10 border-[#B18A52]/30',
+      dot: 'bg-[#B08401] animate-pulse',
+      text: 'text-[#B08401]',
+      bg: 'bg-[#B08401]/10 border-[#B08401]/30',
       label: 'Connecting…',
       tooltip: 'Connecting to arbiter relay',
     },
     reconnecting: {
-      dot: 'bg-[#B18A52] animate-pulse',
-      text: 'text-[#B18A52]',
-      bg: 'bg-[#B18A52]/10 border-[#B18A52]/30',
+      dot: 'bg-[#B08401] animate-pulse',
+      text: 'text-[#B08401]',
+      bg: 'bg-[#B08401]/10 border-[#B08401]/30',
       label: 'Reconnecting…',
       tooltip: 'Re-establishing live channel',
     },
     disconnected: {
-      dot: 'bg-[#9E948A]',
-      text: 'text-[#B9AEA0]',
-      bg: 'bg-[#302A25] border-[#514538]',
+      dot: 'bg-[#9E8B7D]',
+      text: 'text-[#7A6658]',
+      bg: 'bg-[#FAF6F2] border-[#DED1BD]',
       label: 'Offline Cache',
       tooltip: 'Offline cache active',
     },

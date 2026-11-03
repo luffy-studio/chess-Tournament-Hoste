@@ -141,19 +141,19 @@ export const CreateTournamentPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
+    <div className="min-h-screen bg-[#FAF6F2] text-[#683B2B] font-sans flex flex-col selection:bg-[#B08401]/20 selection:text-[#683B2B]">
       <RoyalHeader />
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
         {/* Header & Stepper */}
-        <div className="space-y-4 border-b border-[#514538] pb-6">
+        <div className="space-y-4 border-b border-[#DED1BD] pb-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B18A52] font-semibold">
+              <p className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B08401] font-semibold">
                 Arbiter Chamber Formulation
               </p>
-              <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#F3EDE3] mt-1 tracking-tight">
-                Constitute New <span className="text-[#B18A52]">Championship</span>
+              <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#683B2B] mt-1 tracking-tight">
+                Constitute New <span className="text-[#B08401]">Championship</span>
               </h1>
             </div>
 
@@ -165,14 +165,14 @@ export const CreateTournamentPage: React.FC = () => {
                 { num: 3, label: 'Ratification' },
               ].map((s, idx) => (
                 <React.Fragment key={s.num}>
-                  {idx > 0 && <span className="text-[#514538] text-xs">─</span>}
+                  {idx > 0 && <span className="text-[#DED1BD] text-xs">─</span>}
                   <div
                     className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-cinzel transition-all ${
                       step === s.num
-                        ? 'bg-[#B18A52] text-[#24211E] font-bold shadow-sm'
+                        ? 'bg-[#B08401] text-[#FAF6F2] font-bold shadow-sm'
                         : step > s.num
-                        ? 'border border-[#B18A52] text-[#B18A52] bg-[#38312B]'
-                        : 'border border-[#514538] text-[#B9AEA0] bg-[#302A25]'
+                        ? 'border border-[#B08401] text-[#B08401] bg-[#FAF6F2]'
+                        : 'border border-[#DED1BD] text-[#7A6658] bg-[#FFFFFF]'
                     }`}
                   >
                     <span>{s.num}.</span>
@@ -187,11 +187,11 @@ export const CreateTournamentPage: React.FC = () => {
         {/* STEP 1: SPECIFICATIONS */}
         {step === 1 && (
           <RoyalCard className="space-y-6">
-            <div className="border-b border-[#514538] pb-4">
-              <h2 className="font-serif italic text-2xl text-[#F3EDE3]">
+            <div className="border-b border-[#DED1BD] pb-4">
+              <h2 className="font-serif italic text-2xl text-[#683B2B]">
                 1. Institutional Specifications
               </h2>
-              <p className="text-xs sm:text-sm text-[#B9AEA0] mt-1">
+              <p className="text-xs sm:text-sm text-[#7A6658] mt-1">
                 Define the institutional rules, schedule limits, and time control for this championship decree.
               </p>
             </div>
@@ -208,7 +208,7 @@ export const CreateTournamentPage: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
                 <div className="space-y-2">
-                  <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                  <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                     Tournament Format
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -217,12 +217,12 @@ export const CreateTournamentPage: React.FC = () => {
                       onClick={() => setMode('swiss')}
                       className={`p-3.5 rounded-[12px] border text-left transition-all ${
                         mode === 'swiss'
-                          ? 'border-[#B18A52] bg-[#38312B] text-[#F3EDE3] ring-1 ring-[#B18A52] shadow-sm'
-                          : 'border-[#514538] bg-[#302A25] text-[#B9AEA0] hover:border-[#B18A52]/60'
+                          ? 'border-[#B08401] bg-[#FAF6F2] text-[#683B2B] ring-1 ring-[#B08401] shadow-xs'
+                          : 'border-[#DED1BD] bg-[#FFFFFF] text-[#7A6658] hover:border-[#B08401]/60'
                       }`}
                     >
-                      <p className="font-cinzel text-xs font-bold text-[#B18A52]">FIDE Swiss</p>
-                      <p className="text-[11px] text-[#B9AEA0] mt-0.5 leading-snug">Dutch algorithm with floater auditing</p>
+                      <p className="font-cinzel text-xs font-bold text-[#B08401]">FIDE Swiss</p>
+                      <p className="text-[11px] text-[#7A6658] mt-0.5 leading-snug">Dutch algorithm with floater auditing</p>
                     </button>
 
                     <button
@@ -230,18 +230,18 @@ export const CreateTournamentPage: React.FC = () => {
                       onClick={() => setMode('roundrobin')}
                       className={`p-3.5 rounded-[12px] border text-left transition-all ${
                         mode === 'roundrobin'
-                          ? 'border-[#B18A52] bg-[#38312B] text-[#F3EDE3] ring-1 ring-[#B18A52] shadow-sm'
-                          : 'border-[#514538] bg-[#302A25] text-[#B9AEA0] hover:border-[#B18A52]/60'
+                          ? 'border-[#B08401] bg-[#FAF6F2] text-[#683B2B] ring-1 ring-[#B08401] shadow-xs'
+                          : 'border-[#DED1BD] bg-[#FFFFFF] text-[#7A6658] hover:border-[#B08401]/60'
                       }`}
                     >
-                      <p className="font-cinzel text-xs font-bold text-[#B18A52]">Round Robin</p>
-                      <p className="text-[11px] text-[#B9AEA0] mt-0.5 leading-snug">Berger pairing tables, all play all</p>
+                      <p className="font-cinzel text-xs font-bold text-[#B08401]">Round Robin</p>
+                      <p className="text-[11px] text-[#7A6658] mt-0.5 leading-snug">Berger pairing tables, all play all</p>
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                  <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                     Rounds Planned
                   </label>
                   <input
@@ -250,20 +250,20 @@ export const CreateTournamentPage: React.FC = () => {
                     max={20}
                     value={roundsPlanned}
                     onChange={(e) => setRoundsPlanned(parseInt(e.target.value, 10) || 1)}
-                    className="w-full bg-[#302A25] border border-[#514538] rounded-[12px] px-4 py-2.5 text-[#F3EDE3] font-cinzel text-sm focus:outline-none focus:border-[#B18A52] focus:ring-1 focus:ring-[#B18A52] transition shadow-inner"
+                    className="w-full bg-[#FFFFFF] border border-[#DED1BD] rounded-[12px] px-4 py-2.5 text-[#683B2B] font-cinzel text-sm focus:outline-none focus:border-[#B08401] focus:ring-1 focus:ring-[#B08401] transition shadow-xs"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-1">
                 <div className="space-y-2">
-                  <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                  <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                     Unpaired BYE Award
                   </label>
                   <select
                     value={byePoints}
                     onChange={(e) => setByePoints(parseFloat(e.target.value))}
-                    className="w-full bg-[#302A25] border border-[#514538] rounded-[12px] px-3.5 py-2.5 text-[#F3EDE3] font-cinzel text-xs focus:outline-none focus:border-[#B18A52] shadow-inner"
+                    className="w-full bg-[#FFFFFF] border border-[#DED1BD] rounded-[12px] px-3.5 py-2.5 text-[#683B2B] font-cinzel text-xs focus:outline-none focus:border-[#B08401] shadow-xs"
                   >
                     <option value={1}>1.0 (Full Point Award)</option>
                     <option value={0.5}>0.5 (Half Point Award)</option>
@@ -289,7 +289,7 @@ export const CreateTournamentPage: React.FC = () => {
               </div>
 
               <div className="space-y-2 pt-1">
-                <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Championship Decree & Arbiter Notes
                 </label>
                 <textarea
@@ -297,12 +297,12 @@ export const CreateTournamentPage: React.FC = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Specify prize pool, FIDE tiebreak rules, default times, or special regulations..."
                   rows={3}
-                  className="w-full bg-[#302A25] border border-[#514538] rounded-[12px] p-3 text-[#F3EDE3] placeholder-[#B9AEA0]/50 focus:outline-none focus:border-[#B18A52] focus:ring-1 focus:ring-[#B18A52] transition text-sm font-sans shadow-inner"
+                  className="w-full bg-[#FFFFFF] border border-[#DED1BD] rounded-[12px] p-3 text-[#683B2B] placeholder-[#7A6658]/50 focus:outline-none focus:border-[#B08401] focus:ring-1 focus:ring-[#B08401] transition text-sm font-sans shadow-xs"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end pt-4 border-t border-[#514538]">
+            <div className="flex items-center justify-end pt-4 border-t border-[#DED1BD]">
               <RoyalButton
                 type="button"
                 variant="primary"
@@ -323,17 +323,17 @@ export const CreateTournamentPage: React.FC = () => {
         {/* STEP 2: PARTICIPANTS */}
         {step === 2 && (
           <RoyalCard className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#514538] pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#DED1BD] pb-4">
               <div>
-                <h2 className="font-serif italic text-2xl text-[#F3EDE3]">
+                <h2 className="font-serif italic text-2xl text-[#683B2B]">
                   2. Competitor Enrollment
                 </h2>
-                <p className="text-xs sm:text-sm text-[#B9AEA0] mt-1">
+                <p className="text-xs sm:text-sm text-[#7A6658] mt-1">
                   Input verified players or import a FIDE roster CSV file.
                 </p>
               </div>
 
-              <label className="inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-full border border-[#514538] bg-[#302A25] hover:bg-[#38312B] text-xs font-cinzel text-[#F3EDE3] transition shadow-sm">
+              <label className="inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-full border border-[#DED1BD] bg-[#FFFFFF] hover:bg-[#FAF6F2] text-xs font-cinzel text-[#683B2B] transition shadow-xs">
                 <span>📁 Upload CSV Roster</span>
                 <input
                   type="file"
@@ -345,12 +345,12 @@ export const CreateTournamentPage: React.FC = () => {
             </div>
 
             {csvFile ? (
-              <div className="rounded-[14px] border border-[#B18A52]/40 bg-[#302A25] p-4 flex items-center justify-between">
+              <div className="rounded-[14px] border border-[#B08401]/40 bg-[#FAF6F2] p-4 flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <p className="font-cinzel text-xs text-[#B18A52] font-semibold">
+                  <p className="font-cinzel text-xs text-[#B08401] font-semibold">
                     📄 {csvFile.name}
                   </p>
-                  <p className="text-xs text-[#B9AEA0]">
+                  <p className="text-xs text-[#7A6658]">
                     {parsedParticipants.length} competitors parsed from roster file
                   </p>
                 </div>
@@ -367,20 +367,20 @@ export const CreateTournamentPage: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-2">
-                <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Player Roster (One per line)
                 </label>
                 <textarea
                   value={namesText}
                   onChange={(e) => setNamesText(e.target.value)}
                   rows={8}
-                  className="w-full bg-[#302A25] border border-[#514538] rounded-[12px] p-4 text-[#F3EDE3] font-mono text-sm placeholder-[#B9AEA0]/50 focus:outline-none focus:border-[#B18A52] focus:ring-1 focus:ring-[#B18A52] transition shadow-inner"
+                  className="w-full bg-[#FFFFFF] border border-[#DED1BD] rounded-[12px] p-4 text-[#683B2B] font-mono text-sm placeholder-[#7A6658]/50 focus:outline-none focus:border-[#B08401] focus:ring-1 focus:ring-[#B08401] transition shadow-xs"
                   placeholder="Magnus Carlsen&#10;Hikaru Nakamura&#10;..."
                 />
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-4 border-t border-[#514538]">
+            <div className="flex items-center justify-between pt-4 border-t border-[#DED1BD]">
               <RoyalButton
                 type="button"
                 variant="secondary"
@@ -402,43 +402,43 @@ export const CreateTournamentPage: React.FC = () => {
         {/* STEP 3: REVIEW & RATIFICATION */}
         {step === 3 && (
           <RoyalCard className="space-y-6">
-            <div className="border-b border-[#514538] pb-4">
-              <h2 className="font-serif italic text-2xl text-[#F3EDE3]">
+            <div className="border-b border-[#DED1BD] pb-4">
+              <h2 className="font-serif italic text-2xl text-[#683B2B]">
                 3. Championship Ratification
               </h2>
-              <p className="text-xs sm:text-sm text-[#B9AEA0] mt-1">
+              <p className="text-xs sm:text-sm text-[#7A6658] mt-1">
                 Confirm institutional details before committing to the immutable ledger.
               </p>
             </div>
 
             {/* Specifications Summary Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-[14px] bg-[#302A25] border border-[#514538] text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-[14px] bg-[#FAF6F2] border border-[#DED1BD] text-sm">
               <div>
-                <span className="font-cinzel text-[11px] uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                <span className="font-cinzel text-[11px] uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Championship
                 </span>
-                <span className="font-serif font-medium text-[#F3EDE3] text-base truncate block mt-0.5">
+                <span className="font-serif font-medium text-[#683B2B] text-base truncate block mt-0.5">
                   {name}
                 </span>
               </div>
               <div>
-                <span className="font-cinzel text-[11px] uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                <span className="font-cinzel text-[11px] uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Format
                 </span>
-                <span className="font-cinzel text-xs text-[#B18A52] uppercase font-bold block mt-1">
+                <span className="font-cinzel text-xs text-[#B08401] uppercase font-bold block mt-1">
                   {mode === 'swiss' ? 'FIDE Swiss' : 'Round Robin'}
                 </span>
               </div>
               <div>
-                <span className="font-cinzel text-[11px] uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                <span className="font-cinzel text-[11px] uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Planned Rounds
                 </span>
-                <span className="font-cinzel text-xs text-[#F3EDE3] font-bold block mt-1">
+                <span className="font-cinzel text-xs text-[#683B2B] font-bold block mt-1">
                   {roundsPlanned} Rounds
                 </span>
               </div>
               <div>
-                <span className="font-cinzel text-[11px] uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                <span className="font-cinzel text-[11px] uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Enrolled Players
                 </span>
                 <span className="font-cinzel text-xs text-[#5B6E57] font-bold block mt-1">
@@ -449,32 +449,32 @@ export const CreateTournamentPage: React.FC = () => {
 
             {/* Participants Roster Preview */}
             <div className="space-y-2">
-              <span className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+              <span className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                 Verified Roster Preview:
               </span>
-              <div className="max-h-64 overflow-y-auto rounded-[14px] bg-[#24211E] border border-[#514538] divide-y divide-[#514538]">
+              <div className="max-h-64 overflow-y-auto rounded-[14px] bg-[#FFFFFF] border border-[#DED1BD] divide-y divide-[#DED1BD]">
                 {parsedParticipants.map((p, idx) => (
                   <div key={idx} className="px-4 py-2.5 flex items-center justify-between text-sm">
-                    <span className="text-[#F3EDE3] flex items-center gap-2">
-                      <span className="font-cinzel text-xs text-[#B9AEA0] w-6">
+                    <span className="text-[#683B2B] flex items-center gap-2">
+                      <span className="font-cinzel text-xs text-[#7A6658] w-6">
                         {idx + 1}.
                       </span>
                       {p.name}
                     </span>
-                    <span className="font-cinzel text-xs text-[#B9AEA0] flex items-center gap-2">
+                    <span className="font-cinzel text-xs text-[#7A6658] flex items-center gap-2">
                       {p.title && (
-                        <span className="text-[#B18A52] font-bold border border-[#B18A52]/40 px-1.5 py-0.5 rounded bg-[#38312B]">
+                        <span className="text-[#B08401] font-bold border border-[#B08401]/40 px-1.5 py-0.5 rounded bg-[#FAF6F2]">
                           {p.title}
                         </span>
                       )}
-                      Rating: <span className="text-[#F3EDE3] font-semibold">{p.rating || 1200}</span>
+                      Rating: <span className="text-[#683B2B] font-semibold">{p.rating || 1200}</span>
                     </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-[#514538]">
+            <div className="flex items-center justify-between pt-4 border-t border-[#DED1BD]">
               <RoyalButton
                 type="button"
                 variant="secondary"

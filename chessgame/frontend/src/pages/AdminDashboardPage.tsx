@@ -84,18 +84,18 @@ export const AdminDashboardPage: React.FC = () => {
       : `http://${hostIp}:5000`
 
   return (
-    <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
+    <div className="min-h-screen bg-[#FAF6F2] text-[#683B2B] font-sans flex flex-col selection:bg-[#B08401]/25 selection:text-[#683B2B]">
       <RoyalHeader />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
         {/* Dashboard Top Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#514538] pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#DED1BD] pb-6">
           <div>
-            <p className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B18A52] font-semibold">
+            <p className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B08401] font-semibold">
               Arbiter Operations Center
             </p>
-            <h1 className="font-serif italic font-normal text-3xl sm:text-4xl lg:text-5xl text-[#F3EDE3] mt-1 tracking-tight">
-              Championship <span className="text-[#B18A52]">Console</span>
+            <h1 className="font-serif italic font-normal text-3xl sm:text-4xl lg:text-5xl text-[#683B2B] mt-1 tracking-tight">
+              Championship <span className="text-[#B08401]">Console</span>
             </h1>
           </div>
 
@@ -105,7 +105,7 @@ export const AdminDashboardPage: React.FC = () => {
             </RoyalButton>
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-[#514538] bg-[#302A25] hover:bg-[#38312B] text-xs font-cinzel text-[#B9AEA0] hover:text-[#9E3B3B] transition shadow-sm font-semibold"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-[#DED1BD] bg-[#FFFFFF] hover:bg-[#FAF6F2] text-xs font-cinzel text-[#7A6658] hover:text-[#9E3B3B] transition shadow-sm font-semibold"
             >
               <LogOut size={13} />
               <span>Sign Out</span>
@@ -116,33 +116,33 @@ export const AdminDashboardPage: React.FC = () => {
         {/* Minimalist Stats Summary Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <RoyalCard>
-            <p className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] font-semibold">
+            <p className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] font-semibold">
               Total Sanctioned
             </p>
-            <p className="font-cinzel text-3xl sm:text-4xl text-[#F3EDE3] mt-1.5 font-bold">
+            <p className="font-cinzel text-3xl sm:text-4xl text-[#683B2B] mt-1.5 font-bold">
               {tournaments.length}
             </p>
-            <p className="text-xs text-[#B9AEA0] mt-1 font-sans">Recorded in database ledger</p>
+            <p className="text-xs text-[#7A6658] mt-1 font-sans">Recorded in database ledger</p>
           </RoyalCard>
 
           <RoyalCard>
-            <p className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] font-semibold">
+            <p className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] font-semibold">
               Active Rounds
             </p>
             <p className="font-cinzel text-3xl sm:text-4xl text-[#5B6E57] mt-1.5 font-bold">
               {active}
             </p>
-            <p className="text-xs text-[#B9AEA0] mt-1 font-sans">Under live arbitration</p>
+            <p className="text-xs text-[#7A6658] mt-1 font-sans">Under live arbitration</p>
           </RoyalCard>
 
           <RoyalCard>
-            <p className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] font-semibold">
+            <p className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] font-semibold">
               Concluded & Ratified
             </p>
-            <p className="font-cinzel text-3xl sm:text-4xl text-[#B18A52] mt-1.5 font-bold">
+            <p className="font-cinzel text-3xl sm:text-4xl text-[#B08401] mt-1.5 font-bold">
               {completed}
             </p>
-            <p className="text-xs text-[#B9AEA0] mt-1 font-sans">With official winners declared</p>
+            <p className="text-xs text-[#7A6658] mt-1 font-sans">With official winners declared</p>
           </RoyalCard>
         </div>
 
@@ -150,20 +150,20 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Tournament List */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#514538] pb-3">
+            <div className="flex items-center justify-between border-b border-[#DED1BD] pb-3">
               <div className="flex items-center gap-2">
-                <h2 className="font-serif italic text-2xl text-[#F3EDE3]">
+                <h2 className="font-serif italic text-2xl text-[#683B2B]">
                   Sanctioned Tournaments
                 </h2>
                 <button
                   onClick={fetchTournaments}
                   title="Refresh list"
-                  className="p-1.5 rounded-full hover:bg-[#38312B] text-[#B9AEA0] hover:text-[#B18A52] transition"
+                  className="p-1.5 rounded-full hover:bg-[#FAF6F2] text-[#7A6658] hover:text-[#B08401] transition"
                 >
                   <RefreshCw size={14} />
                 </button>
               </div>
-              <span className="font-cinzel text-xs text-[#B9AEA0] font-semibold">
+              <span className="font-cinzel text-xs text-[#7A6658] font-semibold">
                 {tournaments.length} Fixtures
               </span>
             </div>
@@ -184,13 +184,13 @@ export const AdminDashboardPage: React.FC = () => {
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-serif italic text-xl text-[#F3EDE3] font-medium">
+                          <h3 className="font-serif italic text-xl text-[#683B2B] font-medium">
                             {t.name}
                           </h3>
                           <StatusBadge status={t.status} />
                           <ModeBadge mode={t.mode} />
                         </div>
-                        <p className="font-cinzel text-xs text-[#B9AEA0]">
+                        <p className="font-cinzel text-xs text-[#7A6658]">
                           {t.participants?.length ?? 0} Enrolled Players · Round {t.currentRound} of {t.roundsPlanned}
                         </p>
                       </div>
@@ -212,7 +212,7 @@ export const AdminDashboardPage: React.FC = () => {
                         </RoyalButton>
                         <button
                           onClick={() => setDeleteTarget(t.id)}
-                          className="px-3 py-1.5 rounded-full border border-[#9E3B3B]/40 bg-[#302A25] hover:bg-[#9E3B3B]/20 text-xs font-cinzel text-[#9E3B3B] transition font-semibold"
+                          className="px-3 py-1.5 rounded-full border border-[#9E3B3B]/30 bg-[#FFFFFF] hover:bg-[#9E3B3B]/10 text-xs font-cinzel text-[#9E3B3B] transition font-semibold"
                         >
                           Delete
                         </button>
@@ -228,60 +228,60 @@ export const AdminDashboardPage: React.FC = () => {
           <aside className="space-y-6">
             {/* Venue LAN Connectivity Card */}
             <RoyalCard className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-[#514538] pb-3">
-                <Globe size={18} className="text-[#B18A52]" />
-                <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] font-semibold">
+              <div className="flex items-center gap-2 border-b border-[#DED1BD] pb-3">
+                <Globe size={18} className="text-[#B08401]" />
+                <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#B08401] font-semibold">
                   Venue Local Network (LAN)
                 </h3>
               </div>
 
-              <p className="text-xs text-[#B9AEA0] leading-relaxed">
+              <p className="text-xs text-[#7A6658] leading-relaxed">
                 Devices connected to the venue Wi-Fi or router can access live tournament standings and board assignments via this local address:
               </p>
 
-              <div className="bg-[#24211E] border border-[#514538] rounded-[12px] p-3 font-mono text-xs text-[#F3EDE3] break-all select-all shadow-inner">
+              <div className="bg-[#FAF6F2] border border-[#DED1BD] rounded-[12px] p-3 font-mono text-xs text-[#683B2B] break-all select-all shadow-inner">
                 {lanUrl}
               </div>
 
               <CopyButton
                 text={lanUrl}
                 label="Copy LAN URL"
-                variant="subtle"
+                variant="secondary"
                 size="md"
                 successMessage="Venue LAN URL copied!"
               />
 
-              <div className="text-[11px] font-cinzel text-[#B9AEA0] pt-2 border-t border-[#514538]">
-                Host IPv4: <span className="text-[#F3EDE3] font-semibold">{hostIp}</span>
+              <div className="text-[11px] font-cinzel text-[#7A6658] pt-2 border-t border-[#DED1BD]">
+                Host IPv4: <span className="text-[#683B2B] font-semibold">{hostIp}</span>
               </div>
             </RoyalCard>
 
             {/* Quick Navigation Card */}
             <RoyalCard className="space-y-3">
-              <div className="flex items-center gap-2 border-b border-[#514538] pb-3">
-                <Shield size={18} className="text-[#B18A52]" />
-                <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] font-semibold">
+              <div className="flex items-center gap-2 border-b border-[#DED1BD] pb-3">
+                <Shield size={18} className="text-[#B08401]" />
+                <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#B08401] font-semibold">
                   Quick Navigation
                 </h3>
               </div>
               <div className="space-y-1 font-cinzel text-xs">
                 <Link
                   to="/"
-                  className="flex items-center justify-between p-2.5 rounded-[10px] hover:bg-[#38312B] text-[#B9AEA0] hover:text-[#F3EDE3] transition font-semibold"
+                  className="flex items-center justify-between p-2.5 rounded-[10px] hover:bg-[#FAF6F2] text-[#7A6658] hover:text-[#683B2B] transition font-semibold"
                 >
                   <span>Public Directory</span>
                   <span>→</span>
                 </Link>
                 <Link
                   to="/participant"
-                  className="flex items-center justify-between p-2.5 rounded-[10px] hover:bg-[#38312B] text-[#B9AEA0] hover:text-[#F3EDE3] transition font-semibold"
+                  className="flex items-center justify-between p-2.5 rounded-[10px] hover:bg-[#FAF6F2] text-[#7A6658] hover:text-[#683B2B] transition font-semibold"
                 >
                   <span>Participant Dossier</span>
                   <span>→</span>
                 </Link>
                 <Link
                   to="/arena"
-                  className="flex items-center justify-between p-2.5 rounded-[10px] hover:bg-[#38312B] text-[#B9AEA0] hover:text-[#F3EDE3] transition font-semibold"
+                  className="flex items-center justify-between p-2.5 rounded-[10px] hover:bg-[#FAF6F2] text-[#7A6658] hover:text-[#683B2B] transition font-semibold"
                 >
                   <span>Online Chess Arena</span>
                   <span>→</span>

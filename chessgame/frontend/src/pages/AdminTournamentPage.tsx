@@ -66,7 +66,7 @@ export const AdminTournamentPage: React.FC = () => {
 
   if (loading && !tournament) {
     return (
-      <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col">
+      <div className="min-h-screen bg-[#FAF6F2] text-[#683B2B] font-sans flex flex-col">
         <RoyalHeader />
         <main className="flex-1 flex items-center justify-center">
           <RoyalLoading message="Loading arbiter console…" />
@@ -78,7 +78,7 @@ export const AdminTournamentPage: React.FC = () => {
 
   if (!tournament) {
     return (
-      <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col">
+      <div className="min-h-screen bg-[#FAF6F2] text-[#683B2B] font-sans flex flex-col">
         <RoyalHeader />
         <main className="flex-1 flex items-center justify-center px-4 py-20">
           <RoyalEmpty
@@ -307,32 +307,32 @@ export const AdminTournamentPage: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
+    <div className="min-h-screen bg-[#FAF6F2] text-[#683B2B] font-sans flex flex-col selection:bg-[#B08401]/25 selection:text-[#683B2B]">
       <RoyalHeader />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
         {/* Top Header Card */}
         <RoyalCard className="space-y-5">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#514538] pb-5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#DED1BD] pb-5">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <Link to="/admin/dashboard" className="font-cinzel text-xs text-[#B9AEA0] hover:text-[#F3EDE3] transition font-semibold">
+                <Link to="/admin/dashboard" className="font-cinzel text-xs text-[#7A6658] hover:text-[#683B2B] transition font-semibold">
                   ← Arbiter Console
                 </Link>
-                <span className="text-[#514538] text-xs">/</span>
-                <span className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] font-semibold">
+                <span className="text-[#DED1BD] text-xs">/</span>
+                <span className="font-cinzel text-xs uppercase tracking-wider text-[#B08401] font-semibold">
                   Championship Control
                 </span>
-                <span className="text-[#514538] text-xs">•</span>
+                <span className="text-[#DED1BD] text-xs">•</span>
                 <ConnectionBadge socket={socket} />
               </div>
-              <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#F3EDE3]">
+              <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#683B2B]">
                 {tournament.name}
               </h1>
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <StatusBadge status={tournament.status} />
                 <ModeBadge mode={tournament.mode} />
-                <span className="font-cinzel text-xs text-[#786F66] border border-[#CEBEA8] px-2.5 py-0.5 rounded-full bg-[#FAF8F5] font-semibold">
+                <span className="font-cinzel text-xs text-[#7A6658] border border-[#DED1BD] px-2.5 py-0.5 rounded-full bg-[#FAF6F2] font-semibold">
                   Round {tournament.currentRound} / {tournament.roundsPlanned}
                 </span>
               </div>
@@ -578,19 +578,27 @@ export const AdminTournamentPage: React.FC = () => {
                             </div>
 
                             {/* Result Buttons */}
-                            <div className="flex items-center gap-2 self-end lg:self-center shrink-0">
+                            <div className="flex flex-wrap items-center gap-2 self-end lg:self-center shrink-0">
                               {isBye ? (
                                 <span className="font-cinzel text-xs text-[#5B6E57] border border-[#5B6E57]/30 px-3 py-1 rounded-full bg-[#5B6E57]/10 font-bold">
                                   ✓ Automatic Point Awarded
                                 </span>
                               ) : (
                                 <>
+                                  <Link
+                                    to={`/arena/tournament-${id}-match-${m.id}?tournamentId=${id}&matchId=${m.id}&whiteName=${encodeURIComponent(white?.name || '')}&blackName=${encodeURIComponent(black?.name || '')}`}
+                                    title="Open Board in Live Arena"
+                                    className="font-cinzel text-xs px-3 py-1.5 rounded-full border border-[#DED1BD] bg-[#FAF6F2] hover:bg-[#DED1BD] text-[#683B2B] hover:border-[#B08401] transition font-semibold flex items-center gap-1 shadow-sm"
+                                  >
+                                    <span>Play Live</span>
+                                    <span className="text-[#B08401]">⚡</span>
+                                  </Link>
                                   <button
                                     onClick={() => handleUpdateResult(m.id, 'W')}
                                     className={`font-cinzel text-xs px-3.5 py-1.5 rounded-full transition-all font-bold ${
                                       m.result === 'W'
-                                        ? 'bg-[#241E19] text-[#FAF8F5] shadow-sm'
-                                        : 'border border-[#CEBEA8] bg-[#FAF8F5] text-[#241E19] hover:border-[#241E19]'
+                                        ? 'bg-[#B08401] text-[#FAF6F2] shadow-sm'
+                                        : 'border border-[#DED1BD] bg-[#FFFFFF] text-[#683B2B] hover:border-[#B08401]'
                                     }`}
                                   >
                                     1 – 0
@@ -599,8 +607,8 @@ export const AdminTournamentPage: React.FC = () => {
                                     onClick={() => handleUpdateResult(m.id, 'D')}
                                     className={`font-cinzel text-xs px-3.5 py-1.5 rounded-full transition-all font-bold ${
                                       m.result === 'D'
-                                        ? 'bg-[#241E19] text-[#FAF8F5] shadow-sm'
-                                        : 'border border-[#CEBEA8] bg-[#FAF8F5] text-[#241E19] hover:border-[#241E19]'
+                                        ? 'bg-[#B08401] text-[#FAF6F2] shadow-sm'
+                                        : 'border border-[#DED1BD] bg-[#FFFFFF] text-[#683B2B] hover:border-[#B08401]'
                                     }`}
                                   >
                                     ½ – ½
@@ -609,8 +617,8 @@ export const AdminTournamentPage: React.FC = () => {
                                     onClick={() => handleUpdateResult(m.id, 'L')}
                                     className={`font-cinzel text-xs px-3.5 py-1.5 rounded-full transition-all font-bold ${
                                       m.result === 'L'
-                                        ? 'bg-[#241E19] text-[#FAF8F5] shadow-sm'
-                                        : 'border border-[#CEBEA8] bg-[#FAF8F5] text-[#241E19] hover:border-[#241E19]'
+                                        ? 'bg-[#B08401] text-[#FAF6F2] shadow-sm'
+                                        : 'border border-[#DED1BD] bg-[#FFFFFF] text-[#683B2B] hover:border-[#B08401]'
                                     }`}
                                   >
                                     0 – 1

@@ -1,5 +1,36 @@
 # Changelog: Royal Chess Championship Platform
 
+## [2.5.0] - November 2026
+
+### Grandmaster Suite — Soft Ivory Luxury Refinement & Live Arena Engine
+- **Sole Creator & Architect**: **Sarvagya Sharma**
+- **Soft Ivory Luxury Palette (Phase 1)**:
+  - Replaced chocolate/dark brown heaviness with a warm, natural, editorial aesthetic inspired by vintage chess salons:
+    - Dominant Primary Background: `#FAF6F2` (Soft Ivory)
+    - Secondary Surfaces & Card Hairlines: `#DED1BD` (Warm Beige)
+    - Primary Action Accent: `#B08401` (Mustard Gold)
+    - Secondary Badges & Special Highlights: `#D49E8D` (Dusty Rose)
+    - Selective Typography & Navigational Elements: `#683B2B` (Deep Brown)
+  - Applied uniformly across all 9 pages and 12 shared UI components (`RoyalCard`, `RoyalButton`, `RoyalHeader`, `RoyalFooter`, `RoyalInput`, `RoyalChip`, `StandingsTable`, `StatusBadge`, `ModeBadge`, `ConnectionBadge`, `RoyalLoading`, `RoyalEmpty`).
+  - WCAG AAA contrast achieved for primary body typography (`#683B2B` on `#FAF6F2` > 7.5:1).
+- **Live Chess Draw Offer System (Phase 2)**:
+  - Added real-time "Offer Draw" button with anti-spam state protection (single offer per player, clears on game end or next move).
+  - Synchronized WebSocket protocol (`arena:drawOffered`, `arena:respondDraw`, `arena:drawDeclined`).
+  - Opponent received prompt: *"Your opponent has offered a draw"* with **Accept Draw** and **Reject Offer** actions.
+  - If accepted: game immediately terminates with `DRAW`, triggers premium agreement modal (*"Game Drawn — Both players have agreed to a draw"*), persists `½ – ½` to Prisma database, recalculates scores, and broadcasts tournament update.
+  - If rejected: notification dismissed, rejection toast sent to challenger (*"Draw offer rejected."*), and clock/board position continues undisturbed.
+- **Automatic 50s Disconnection & Abandonment Detection (Phase 3)**:
+  - Server-authoritative disconnect countdown: `ArenaManager` starts a 50-second timer whenever an active player's WebSocket disconnects.
+  - Live broadcast of countdown ticks (`arena:disconnectCountdown`) to connected opponent: *"Opponent disconnected — Waiting for opponent to reconnect... 50s -> 49s..."*.
+  - Seamless reconnection cancellation: if the disconnected player reconnects within 50s, timer aborts and board state resumes normally.
+  - Automatic forfeit on 50s expiry: server ends match with `endReason: 'abandonment'`, awards victory to the connected player, updates tournament database, and displays premium modal popup: *"Victory! Your opponent abandoned the match."*.
+- **Live Arena & Tournament Integration (Phase 4)**:
+  - Deterministic tournament match rooms: `tournament-{tournamentId}-match-{matchId}`.
+  - Added "Enter Live Arena" / "Watch Live" buttons on fixtures in `AdminTournamentPage`, `ParticipantPage`, and `TournamentPublicPage`.
+- **Verification**:
+  - Full engine test suite: 23/23 tests passed (`vitest run`).
+  - Monorepo production build: 0 errors (`npm run build`).
+
 ## [2.4.0] - November 2026
 
 ### Complete "Royal Noir" Universal Visual Design Overhaul

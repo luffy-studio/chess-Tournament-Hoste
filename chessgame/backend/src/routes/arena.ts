@@ -15,6 +15,9 @@ const createArenaGameSchema = z.object({
   }),
   preferredColor: z.enum(['w', 'b', 'random']).optional(),
   socketId: z.string().optional(),
+  roomId: z.string().optional(),
+  tournamentId: z.string().optional(),
+  matchId: z.string().optional(),
 });
 
 // List public active arena matches
@@ -27,16 +30,19 @@ router.get('/games', (req, res, next) => {
   }
 });
 
-// Create a new arena match
+// Create or initialize an arena match
 router.post('/games', validateBody(createArenaGameSchema), (req, res, next) => {
   try {
     const data = req.body;
     const result = arenaManager.createGame({
+      roomId: data.roomId,
       creatorName: data.creatorName,
       creatorId: data.creatorId,
       timeControl: data.timeControl,
       preferredColor: data.preferredColor || 'random',
       socketId: data.socketId || 'pending',
+      tournamentId: data.tournamentId,
+      matchId: data.matchId,
     });
 
     res.status(201).json({

@@ -25,7 +25,7 @@ export const RoyalEmpty: React.FC<RoyalEmptyProps> = ({
 
   return (
     <div className="py-16 sm:py-20 flex flex-col items-center justify-center text-center max-w-md mx-auto space-y-4 px-4">
-      <div className="w-14 h-14 rounded-full border border-[#B18A52]/30 p-1.5 flex items-center justify-center bg-[#2E2925] shadow-sm">
+      <div className="w-14 h-14 rounded-full border border-[#DED1BD] p-1.5 flex items-center justify-center bg-[#FFFFFF] shadow-sm">
         <img
           src="/grandmaster-emblem.png"
           alt="Emblem"
@@ -33,11 +33,11 @@ export const RoyalEmpty: React.FC<RoyalEmptyProps> = ({
         />
       </div>
 
-      <h3 className="font-serif text-2xl sm:text-3xl text-[#F3EDE3] tracking-tight">
+      <h3 className="font-serif text-2xl sm:text-3xl text-[#683B2B] tracking-tight">
         {title}
       </h3>
 
-      <p className="text-sm text-[#B9AEA0] leading-relaxed font-sans">
+      <p className="text-sm text-[#7A6658] leading-relaxed font-sans">
         {displayMessage}
       </p>
 

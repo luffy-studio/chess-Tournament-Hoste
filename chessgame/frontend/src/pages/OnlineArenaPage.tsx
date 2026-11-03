@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { Chess, Square } from 'chess.js'
 import { Socket } from 'socket.io-client'
 import api from '../utils/api'
@@ -11,7 +11,7 @@ import { RoyalCard } from '../components/RoyalCard'
 import { RoyalEmpty } from '../components/RoyalEmpty'
 import { CopyButton } from '../components/CopyButton'
 import { ConnectionBadge } from '../components/ConnectionBadge'
-import { Swords, RefreshCw, RotateCcw, Flag, HeartHandshake } from 'lucide-react'
+import { Swords, RefreshCw, RotateCcw, Flag, HeartHandshake, AlertTriangle, Trophy } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface ArenaGameState {
@@ -23,6 +23,8 @@ interface ArenaGameState {
   winner: 'w' | 'b' | 'draw' | null
   endReason: string | null
   timeControl: { initial: number; increment: number }
+  tournamentId?: string | null
+  matchId?: string | null
   white: { id: string; name: string; color: 'w'; timeLeft: number; connected: boolean } | null
   black: { id: string; name: string; color: 'b'; timeLeft: number; connected: boolean } | null
   spectatorsCount: number
@@ -47,7 +49,11 @@ const PIECE_SYMBOLS: Record<string, string> = {
 
 export const OnlineArenaPage: React.FC = () => {
   const { roomId } = useParams<{ roomId?: string }>()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+
+  const tournamentIdParam = searchParams.get('tournamentId')
+  const matchIdParam = searchParams.get('matchId')
 
   // User identity
   const [playerName, setPlayerName] = useState(() => {
@@ -79,6 +85,12 @@ export const OnlineArenaPage: React.FC = () => {
   const [whiteClock, setWhiteClock] = useState<number>(0)
   const [blackClock, setBlackClock] = useState<number>(0)
   const [promotionPending, setPromotionPending] = useState<{ from: Square; to: Square } | null>(null)
+
+  // Phase 2 & 3 States
+  const [drawOfferSent, setDrawOfferSent] = useState(false)
+  const [incomingDrawOffer, setIncomingDrawOffer] = useState(false)
+  const [disconnectCountdown, setDisconnectCountdown] = useState<number | null>(null)
+  const [showResultModal, setShowResultModal] = useState(false)
 
   const chessRef = useRef(new Chess())
 
@@ -119,6 +131,18 @@ export const OnlineArenaPage: React.FC = () => {
   useEffect(() => {
     if (!socket || !roomId) return
 
+    // If game does not exist and it's a tournament match room, create it first
+    if (tournamentIdParam && matchIdParam) {
+      api.post('/arena/games', {
+        roomId,
+        creatorName: playerName,
+        creatorId: playerId,
+        timeControl: { initial: 300, increment: 3 },
+        tournamentId: tournamentIdParam,
+        matchId: matchIdParam,
+      }).catch(() => {})
+    }
+
     socket.emit('arena:join', {
       roomId,
       player: { id: playerId, name: playerName },
@@ -133,10 +157,19 @@ export const OnlineArenaPage: React.FC = () => {
       if (role === 'b') {
         setFlipped(true)
       }
+      if (game.status === 'completed') {
+        setShowResultModal(true)
+      }
+      if (game.drawOffer && game.drawOffer !== role && role !== 'spectator') {
+        setIncomingDrawOffer(true)
+      }
     })
 
     socket.on('arena:playerJoined', ({ game }: { game: ArenaGameState }) => {
       setGameState(game)
+      if (game.status === 'in_progress') {
+        toast.success('Opponent connected. Match beginning!', { icon: '♟' })
+      }
     })
 
     socket.on('arena:moveMade', ({ game }: { game: ArenaGameState }) => {
@@ -146,6 +179,8 @@ export const OnlineArenaPage: React.FC = () => {
       chessRef.current.load(game.fen)
       setSelectedSquare(null)
       setLegalMoves([])
+      setDrawOfferSent(false)
+      setIncomingDrawOffer(false)
     })
 
     socket.on('arena:clockTick', ({ whiteTimeLeft, blackTimeLeft }: { whiteTimeLeft: number; blackTimeLeft: number }) => {
@@ -155,17 +190,40 @@ export const OnlineArenaPage: React.FC = () => {
 
     socket.on('arena:gameOver', ({ message, game }: any) => {
       setGameState(game)
-      toast(message, { icon: '🏁', duration: 5000 })
+      setShowResultModal(true)
+      setDisconnectCountdown(null)
+      setIncomingDrawOffer(false)
+      setDrawOfferSent(false)
+      toast(message, { icon: '🏆', duration: 6000 })
     })
 
+    // Phase 2: Real-time Draw Offer Events
     socket.on('arena:drawOffered', ({ by }: { by: 'w' | 'b' }) => {
-      if ((myRole === 'w' && by === 'b') || (myRole === 'b' && by === 'w')) {
-        toast('Opponent has offered a draw!', { icon: '🤝' })
+      setGameState((prev) => (prev ? { ...prev, drawOffer: by } : prev))
+      if (myRole !== 'spectator' && by !== myRole) {
+        setIncomingDrawOffer(true)
       }
     })
 
-    socket.on('arena:drawDeclined', () => {
-      toast('Draw offer was declined.', { icon: '❌' })
+    socket.on('arena:drawDeclined', ({ message }: { message?: string }) => {
+      setGameState((prev) => (prev ? { ...prev, drawOffer: null } : prev))
+      setDrawOfferSent(false)
+      setIncomingDrawOffer(false)
+      toast.error(message || 'Draw offer rejected.', { icon: '❌' })
+    })
+
+    // Phase 3: 50s Disconnection Countdown Events
+    socket.on('arena:disconnectCountdown', ({ disconnectedColor, secondsLeft }: { disconnectedColor: 'w' | 'b'; secondsLeft: number }) => {
+      if (myRole !== 'spectator' && disconnectedColor !== myRole) {
+        setDisconnectCountdown(secondsLeft)
+      }
+    })
+
+    socket.on('arena:playerReconnected', ({ reconnectedColor }: { reconnectedColor: 'w' | 'b' }) => {
+      if (reconnectedColor !== myRole) {
+        setDisconnectCountdown(null)
+        toast.success('Opponent reconnected! Live match continuing.', { icon: '🟢' })
+      }
     })
 
     socket.on('arena:error', ({ message }: { message: string }) => {
@@ -180,9 +238,11 @@ export const OnlineArenaPage: React.FC = () => {
       socket.off('arena:gameOver')
       socket.off('arena:drawOffered')
       socket.off('arena:drawDeclined')
+      socket.off('arena:disconnectCountdown')
+      socket.off('arena:playerReconnected')
       socket.off('arena:error')
     }
-  }, [socket, roomId, playerId, playerName])
+  }, [socket, roomId, playerId, playerName, myRole, tournamentIdParam, matchIdParam])
 
   // Create match
   const handleCreateMatch = async () => {
@@ -232,7 +292,7 @@ export const OnlineArenaPage: React.FC = () => {
     const chess = chessRef.current
     const piece = chess.get(sq)
 
-    // If already clicked a square and clicking on a legal destination
+    // Destination clicked
     if (selectedSquare && legalMoves.includes(sq)) {
       const movingPiece = chess.get(selectedSquare)
       const isPawnPromotion =
@@ -248,7 +308,7 @@ export const OnlineArenaPage: React.FC = () => {
       return
     }
 
-    // Selecting a piece of player's own color
+    // Selecting own piece
     if (piece && piece.color === myRole) {
       setSelectedSquare(sq)
       const moves = chess.moves({ square: sq, verbose: true })
@@ -276,15 +336,23 @@ export const OnlineArenaPage: React.FC = () => {
     socket.emit('arena:resign', { roomId, playerId })
   }
 
+  // Phase 2: Offer Draw
   const handleOfferDraw = () => {
     if (!socket || !roomId) return
+    if (drawOfferSent || gameState?.drawOffer) {
+      toast.error('A draw offer is already pending.')
+      return
+    }
     socket.emit('arena:drawOffer', { roomId, playerId })
-    toast.success('Draw offered to opponent')
+    setDrawOfferSent(true)
+    toast.success('Draw offered to opponent.')
   }
 
+  // Phase 2: Accept or Reject Draw
   const handleRespondDraw = (accept: boolean) => {
     if (!socket || !roomId) return
     socket.emit('arena:drawResponse', { roomId, playerId, accept })
+    setIncomingDrawOffer(false)
   }
 
   const formatClock = (seconds: number) => {
@@ -294,8 +362,8 @@ export const OnlineArenaPage: React.FC = () => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`
   }
 
-  // Render Chessboard with Authentic Walnut & Maple Wooden Colors
-  // Frame: #3D3024, Light: #E8DFCF (maple), Dark: #6E553E (walnut)
+  // Render Chessboard with Soft Ivory & Warm Walnut Luxury Colors
+  // Frame: #683B2B, Light: #FAF6F2, Dark: #DED1BD
   const renderBoard = () => {
     const ranks = flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1]
     const files = flipped ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'] : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -304,7 +372,7 @@ export const OnlineArenaPage: React.FC = () => {
     const lastMove = gameState?.moves[gameState.moves.length - 1]
 
     return (
-      <div className="grid grid-cols-8 grid-rows-8 w-full max-w-[min(100vw-32px,520px)] aspect-square rounded-[16px] overflow-hidden border-4 border-[#3D3024] shadow-md relative select-none bg-[#3D3024]">
+      <div className="grid grid-cols-8 grid-rows-8 w-full max-w-[min(100vw-32px,520px)] aspect-square rounded-[16px] overflow-hidden border-4 border-[#683B2B] shadow-md relative select-none bg-[#683B2B]">
         {ranks.map((r, rIdx) =>
           files.map((f, fIdx) => {
             const sq = `${f}${r}` as Square
@@ -317,16 +385,14 @@ export const OnlineArenaPage: React.FC = () => {
             const isKingInCheck =
               piece?.type === 'k' && piece.color === chess.turn() && chess.inCheck()
 
-            // Natural wood board tokens:
-            // Light square: #E8DFCF
-            // Dark square: #6E553E
-            let bgColor = isDark ? 'bg-[#6E553E]' : 'bg-[#E8DFCF]'
+            // Soft Ivory & Warm Beige Board Tokens:
+            let bgColor = isDark ? 'bg-[#DED1BD]' : 'bg-[#FAF6F2]'
 
             if (isLastMoveFrom || isLastMoveTo) {
-              bgColor = isDark ? 'bg-[#886A4C]' : 'bg-[#D5C3A5]'
+              bgColor = isDark ? 'bg-[#C9BAA3]' : 'bg-[#F4EEE7]'
             }
             if (isSelected) {
-              bgColor = 'bg-[#B18A52]/70'
+              bgColor = 'bg-[#B08401]/50'
             }
 
             return (
@@ -342,7 +408,7 @@ export const OnlineArenaPage: React.FC = () => {
                 {fIdx === 0 && (
                   <span
                     className={`absolute top-0.5 left-1 font-cinzel text-[9px] font-bold ${
-                      isDark ? 'text-[#E8DFCF]/70' : 'text-[#6E553E]/70'
+                      isDark ? 'text-[#683B2B]/60' : 'text-[#7A6658]/60'
                     }`}
                   >
                     {r}
@@ -351,7 +417,7 @@ export const OnlineArenaPage: React.FC = () => {
                 {rIdx === 7 && (
                   <span
                     className={`absolute bottom-0.5 right-1 font-cinzel text-[9px] font-bold ${
-                      isDark ? 'text-[#E8DFCF]/70' : 'text-[#6E553E]/70'
+                      isDark ? 'text-[#683B2B]/60' : 'text-[#7A6658]/60'
                     }`}
                   >
                     {f}
@@ -361,10 +427,10 @@ export const OnlineArenaPage: React.FC = () => {
                 {/* Piece rendering */}
                 {piece && (
                   <span
-                    className={`leading-none drop-shadow-sm cursor-pointer transform hover:scale-105 active:scale-95 transition-transform ${
+                    className={`leading-none cursor-pointer transform hover:scale-105 active:scale-95 transition-transform ${
                       piece.color === 'w'
-                        ? 'text-[#FAF8F5] drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)]'
-                        : 'text-[#1C1815] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]'
+                        ? 'text-[#FFFFFF] drop-shadow-[0_2px_4px_rgba(104,59,43,0.8)]'
+                        : 'text-[#241E19] drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]'
                     }`}
                   >
                     {PIECE_SYMBOLS[`${piece.color}${piece.type.toUpperCase()}`]}
@@ -376,8 +442,8 @@ export const OnlineArenaPage: React.FC = () => {
                   <div
                     className={`absolute rounded-full pointer-events-none ${
                       piece
-                        ? 'w-full h-full border-4 border-[#B18A52]/80 ring-2 ring-[#B18A52]/40'
-                        : 'w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#B18A52]/70 shadow-sm'
+                        ? 'w-full h-full border-4 border-[#B08401]/90 ring-2 ring-[#B08401]/40'
+                        : 'w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#B08401]/80 shadow-sm'
                     }`}
                   />
                 )}
@@ -400,20 +466,25 @@ export const OnlineArenaPage: React.FC = () => {
     const myClock = isWhite ? whiteClock : blackClock
 
     return (
-      <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
+      <div className="min-h-screen bg-[#FAF6F2] text-[#683B2B] font-sans flex flex-col selection:bg-[#B08401]/25 selection:text-[#683B2B]">
         <RoyalHeader />
 
         {/* Match Top Bar */}
-        <div className="border-b border-[#514538] bg-[#2E2925]/90 backdrop-blur-md sticky top-0 z-20">
+        <div className="border-b border-[#DED1BD] bg-[#FFFFFF]/90 backdrop-blur-md sticky top-0 z-20 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Link to="/arena" className="font-cinzel text-xs text-[#B9AEA0] hover:text-[#F3EDE3] transition font-semibold">
+              <Link to="/arena" className="font-cinzel text-xs text-[#7A6658] hover:text-[#683B2B] transition font-semibold">
                 ← Exit to Lobby
               </Link>
-              <span className="text-[#514538] text-xs">/</span>
-              <span className="font-cinzel text-xs text-[#B18A52] font-bold">
-                Room: <span className="font-mono text-[#F3EDE3]">{roomId}</span>
+              <span className="text-[#DED1BD] text-xs">/</span>
+              <span className="font-cinzel text-xs text-[#B08401] font-bold">
+                Room: <span className="font-mono text-[#683B2B]">{roomId}</span>
               </span>
+              {gameState?.tournamentId && (
+                <span className="hidden sm:inline-block font-cinzel text-[11px] px-2.5 py-0.5 rounded-full bg-[#D49E8D]/20 text-[#683B2B] border border-[#D49E8D]/40 font-semibold">
+                  Tournament Match
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
@@ -421,25 +492,168 @@ export const OnlineArenaPage: React.FC = () => {
               <CopyButton
                 text={typeof window !== 'undefined' ? window.location.href : ''}
                 label="Share Match"
-                variant="subtle"
+                variant="secondary"
                 size="sm"
-                successMessage="Match challenge link copied!"
+                successMessage="Match link copied to clipboard!"
               />
-              <span className="font-cinzel text-xs text-[#B9AEA0] hidden md:inline font-semibold">
+              <span className="font-cinzel text-xs text-[#7A6658] hidden md:inline font-semibold">
                 👁 {gameState?.spectatorsCount ?? 0} Spectating
               </span>
             </div>
           </div>
         </div>
 
+        {/* Phase 3: Disconnection Warning Banner */}
+        {disconnectCountdown !== null && (
+          <div className="bg-[#FAF6F2] border-b-2 border-[#B08401] p-3 text-center shadow-md animate-in slide-in-from-top duration-200">
+            <div className="max-w-xl mx-auto flex items-center justify-center gap-3">
+              <AlertTriangle className="text-[#B08401] animate-bounce shrink-0" size={20} />
+              <div className="text-left sm:text-center">
+                <p className="font-cinzel text-xs uppercase tracking-wider font-bold text-[#683B2B]">
+                  Opponent Disconnected
+                </p>
+                <p className="text-xs text-[#7A6658] font-sans">
+                  Waiting for opponent to reconnect... Victory awarded in{' '}
+                  <span className="font-mono font-bold text-sm text-[#B08401] bg-[#FAF6F2] px-2 py-0.5 rounded border border-[#B08401]">
+                    {disconnectCountdown}s
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 2: Real-time Draw Offer Modal / Prompt */}
+        {incomingDrawOffer && !isSpectator && gameState?.status === 'in_progress' && (
+          <div className="fixed inset-0 z-50 bg-[#683B2B]/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <RoyalCard className="max-w-md w-full text-center space-y-5 p-7 shadow-2xl border-2 border-[#B08401]">
+              <div className="w-14 h-14 rounded-full bg-[#FAF6F2] border border-[#B08401] flex items-center justify-center mx-auto text-2xl text-[#B08401]">
+                <HeartHandshake size={28} />
+              </div>
+              <div className="space-y-1">
+                <p className="font-cinzel text-xs uppercase tracking-[0.2em] text-[#B08401] font-semibold">
+                  Peace Accord
+                </p>
+                <h3 className="font-serif italic text-2xl text-[#683B2B]">
+                  Your opponent has offered a draw.
+                </h3>
+                <p className="text-xs text-[#7A6658]">
+                  Accepting will conclude this fixture immediately with a half-point awarded to both competitors.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleRespondDraw(true)}
+                  className="py-2.5 px-4 rounded-full bg-[#B08401] hover:bg-[#997200] text-[#FAF6F2] font-cinzel text-xs font-bold transition shadow-sm"
+                >
+                  Accept Draw
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRespondDraw(false)}
+                  className="py-2.5 px-4 rounded-full border border-[#DED1BD] bg-[#FAF6F2] hover:bg-[#DED1BD] text-[#683B2B] font-cinzel text-xs font-bold transition"
+                >
+                  Reject Offer
+                </button>
+              </div>
+            </RoyalCard>
+          </div>
+        )}
+
+        {/* Phase 2 & 3: Final Game Result Modal */}
+        {showResultModal && gameState?.status === 'completed' && (
+          <div className="fixed inset-0 z-50 bg-[#683B2B]/45 backdrop-blur-sm flex items-center justify-center p-4">
+            <RoyalCard className="max-w-lg w-full text-center space-y-6 p-8 shadow-2xl border-2 border-[#B08401]">
+              <div className="w-16 h-16 rounded-full bg-[#FAF6F2] border-2 border-[#B08401] flex items-center justify-center mx-auto text-3xl text-[#B08401]">
+                {gameState.winner === 'draw' ? <HeartHandshake size={32} /> : <Trophy size={32} />}
+              </div>
+
+              <div className="space-y-1.5">
+                <p className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B08401] font-bold">
+                  Fixture Concluded
+                </p>
+                <h2 className="font-serif italic text-3xl text-[#683B2B]">
+                  {gameState.endReason === 'abandonment'
+                    ? 'Victory!'
+                    : gameState.winner === 'draw'
+                    ? 'Game Drawn'
+                    : `${gameState.winner === 'w' ? 'White' : 'Black'} Triumphant!`}
+                </h2>
+
+                {gameState.endReason === 'abandonment' ? (
+                  <p className="text-sm text-[#7A6658] font-sans">
+                    Your opponent abandoned the match.<br />
+                    <span className="text-xs text-[#9E8B7D]">Opponent disconnected for more than 50 seconds.</span>
+                  </p>
+                ) : gameState.endReason === 'agreement' ? (
+                  <p className="text-sm text-[#7A6658] font-sans">
+                    Both players have agreed to a draw.
+                  </p>
+                ) : (
+                  <p className="text-sm text-[#7A6658] font-sans capitalize">
+                    Reason: {gameState.endReason?.replace('_', ' ')}
+                  </p>
+                )}
+              </div>
+
+              {/* Match Summary Box */}
+              <div className="bg-[#FAF6F2] border border-[#DED1BD] rounded-[14px] p-4 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-cinzel text-[#7A6658] font-semibold">♔ White:</span>
+                  <span className="font-serif font-medium text-[#683B2B]">{gameState.white?.name || 'White'}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-cinzel text-[#7A6658] font-semibold">♚ Black:</span>
+                  <span className="font-serif font-medium text-[#683B2B]">{gameState.black?.name || 'Black'}</span>
+                </div>
+                <div className="border-t border-[#DED1BD] pt-2 flex items-center justify-between text-xs">
+                  <span className="font-cinzel text-[#B08401] font-bold">Official Score:</span>
+                  <span className="font-cinzel text-sm font-bold text-[#683B2B]">
+                    {gameState.winner === 'w' ? '1 – 0' : gameState.winner === 'b' ? '0 – 1' : '½ – ½'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                {gameState.tournamentId ? (
+                  <RoyalButton
+                    to={`/tournaments/${gameState.tournamentId}`}
+                    variant="primary"
+                    className="flex-1 justify-center"
+                  >
+                    Return to Tournament
+                  </RoyalButton>
+                ) : (
+                  <RoyalButton
+                    to="/arena"
+                    variant="primary"
+                    className="flex-1 justify-center"
+                  >
+                    Return to Lobby
+                  </RoyalButton>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowResultModal(false)}
+                  className="px-4 py-2.5 rounded-full border border-[#DED1BD] bg-[#FFFFFF] hover:bg-[#FAF6F2] text-xs font-cinzel text-[#7A6658] font-semibold transition"
+                >
+                  Review Board
+                </button>
+              </div>
+            </RoyalCard>
+          </div>
+        )}
+
         {/* Promotion Dialog */}
         {promotionPending && (
-          <div className="fixed inset-0 z-50 bg-[#1A1816]/80 flex items-center justify-center p-4 backdrop-blur-sm">
-            <RoyalCard className="max-w-sm w-full text-center space-y-4 shadow-xl border border-[#514538]">
-              <p className="font-cinzel text-xs uppercase tracking-[0.2em] text-[#B18A52] font-semibold">
+          <div className="fixed inset-0 z-50 bg-[#683B2B]/40 flex items-center justify-center p-4 backdrop-blur-sm">
+            <RoyalCard className="max-w-sm w-full text-center space-y-4 shadow-xl border border-[#DED1BD]">
+              <p className="font-cinzel text-xs uppercase tracking-[0.2em] text-[#B08401] font-semibold">
                 Pawn Metamorphosis
               </p>
-              <h3 className="font-serif italic text-2xl text-[#F3EDE3]">
+              <h3 className="font-serif italic text-2xl text-[#683B2B]">
                 Select Promotion Piece
               </h3>
               <div className="grid grid-cols-4 gap-3">
@@ -453,10 +667,10 @@ export const OnlineArenaPage: React.FC = () => {
                     key={p.type}
                     type="button"
                     onClick={() => executeMove(promotionPending.from, promotionPending.to, p.type)}
-                    className="p-3 bg-[#302A25] hover:bg-[#38312B] border border-[#514538] rounded-[12px] text-3xl transition flex flex-col items-center gap-1 active:scale-95 shadow-sm text-[#F3EDE3]"
+                    className="p-3 bg-[#FAF6F2] hover:bg-[#DED1BD] border border-[#DED1BD] rounded-[12px] text-3xl transition flex flex-col items-center gap-1 active:scale-95 shadow-sm text-[#683B2B]"
                   >
                     <span>{p.sym}</span>
-                    <span className="font-cinzel text-[10px] text-[#B9AEA0] font-semibold">{p.name}</span>
+                    <span className="font-cinzel text-[10px] text-[#7A6658] font-semibold">{p.name}</span>
                   </button>
                 ))}
               </div>
@@ -471,12 +685,12 @@ export const OnlineArenaPage: React.FC = () => {
             {/* Opponent Card & Clock */}
             <RoyalCard className="w-full p-3.5 sm:p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-2xl text-[#B18A52]">{isWhite ? '♚' : '♔'}</span>
+                <span className="text-2xl text-[#B08401]">{isWhite ? '♚' : '♔'}</span>
                 <div>
-                  <p className="font-serif font-medium text-sm text-[#241E19] truncate max-w-[150px] sm:max-w-[200px]">
+                  <p className="font-serif font-medium text-sm text-[#683B2B] truncate max-w-[150px] sm:max-w-[200px]">
                     {opponent?.name || (gameState?.status === 'waiting' ? 'Waiting for opponent…' : 'Opponent')}
                   </p>
-                  <p className="font-cinzel text-[10px] text-[#786F66]">
+                  <p className="font-cinzel text-[10px] text-[#7A6658]">
                     {isWhite ? 'Black' : 'White'} • {opponent?.connected ? '🟢 Connected' : '🔴 Disconnected'}
                   </p>
                 </div>
@@ -487,9 +701,9 @@ export const OnlineArenaPage: React.FC = () => {
                 className={`font-cinzel text-xl sm:text-2xl px-4 py-1.5 rounded-[12px] border font-bold transition-all ${
                   gameState?.turn === (isWhite ? 'b' : 'w')
                     ? opponentClock < 30
-                      ? 'border-[#9E3B3B] bg-[#9E3B3B]/20 text-[#B84A4A] animate-pulse shadow-sm'
-                      : 'border-[#B18A52] bg-[#38312B] text-[#F3EDE3] shadow-sm'
-                    : 'border-[#514538] bg-[#302A25] text-[#B9AEA0]'
+                      ? 'border-[#9E3B3B] bg-[#9E3B3B]/10 text-[#9E3B3B] animate-pulse shadow-sm'
+                      : 'border-[#B08401] bg-[#FAF6F2] text-[#B08401] shadow-sm'
+                    : 'border-[#DED1BD] bg-[#FAF6F2] text-[#7A6658]'
                 }`}
               >
                 {formatClock(opponentClock)}
@@ -502,12 +716,12 @@ export const OnlineArenaPage: React.FC = () => {
             {/* Player Card (You) & Clock */}
             <RoyalCard className="w-full p-3.5 sm:p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-2xl text-[#B18A52]">{isWhite ? '♔' : '♚'}</span>
+                <span className="text-2xl text-[#B08401]">{isWhite ? '♔' : '♚'}</span>
                 <div>
-                  <p className="font-serif font-medium text-sm text-[#F3EDE3] truncate max-w-[150px] sm:max-w-[200px]">
+                  <p className="font-serif font-medium text-sm text-[#683B2B] truncate max-w-[150px] sm:max-w-[200px]">
                     {me?.name || playerName} {isSpectator && '(Spectator)'}
                   </p>
-                  <p className="font-cinzel text-[10px] text-[#B9AEA0]">
+                  <p className="font-cinzel text-[10px] text-[#7A6658]">
                     {isSpectator ? 'Spectating' : isWhite ? 'White (You)' : 'Black (You)'} • 🟢 Active
                   </p>
                 </div>
@@ -518,9 +732,9 @@ export const OnlineArenaPage: React.FC = () => {
                 className={`font-cinzel text-xl sm:text-2xl px-4 py-1.5 rounded-[12px] border font-bold transition-all ${
                   gameState?.turn === myRole
                     ? myClock < 30
-                      ? 'border-[#9E3B3B] bg-[#9E3B3B]/20 text-[#B84A4A] animate-pulse shadow-sm'
-                      : 'border-[#B18A52] bg-[#38312B] text-[#F3EDE3] shadow-sm'
-                    : 'border-[#514538] bg-[#302A25] text-[#B9AEA0]'
+                      ? 'border-[#9E3B3B] bg-[#9E3B3B]/10 text-[#9E3B3B] animate-pulse shadow-sm'
+                      : 'border-[#B08401] bg-[#FAF6F2] text-[#B08401] shadow-sm'
+                    : 'border-[#DED1BD] bg-[#FAF6F2] text-[#7A6658]'
                 }`}
               >
                 {formatClock(myClock)}
@@ -533,52 +747,28 @@ export const OnlineArenaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleOfferDraw}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-[#514538] bg-[#302A25] hover:bg-[#38312B] font-cinzel text-xs text-[#F3EDE3] transition shadow-sm font-semibold"
+                  disabled={drawOfferSent || gameState?.drawOffer !== null}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full border border-[#DED1BD] bg-[#FFFFFF] hover:bg-[#FAF6F2] font-cinzel text-xs text-[#683B2B] transition shadow-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <HeartHandshake size={14} className="text-[#B18A52]" />
-                  <span>Offer Draw</span>
+                  <HeartHandshake size={15} className="text-[#B08401]" />
+                  <span>{drawOfferSent ? 'Draw Offered…' : 'Offer Draw'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleResign}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-[#9E3B3B]/40 bg-[#302A25] hover:bg-[#9E3B3B]/20 font-cinzel text-xs text-[#9E3B3B] transition shadow-sm font-semibold"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full border border-[#9E3B3B]/30 bg-[#FFFFFF] hover:bg-[#9E3B3B]/10 font-cinzel text-xs text-[#9E3B3B] transition shadow-sm font-semibold"
                 >
-                  <Flag size={14} />
+                  <Flag size={15} />
                   <span>Resign</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setFlipped(!flipped)}
-                  className="px-4 py-2 rounded-full border border-[#514538] bg-[#302A25] hover:bg-[#38312B] font-cinzel text-xs text-[#B9AEA0] hover:text-[#F3EDE3] transition shadow-sm"
+                  className="px-4 py-2.5 rounded-full border border-[#DED1BD] bg-[#FFFFFF] hover:bg-[#FAF6F2] font-cinzel text-xs text-[#7A6658] hover:text-[#683B2B] transition shadow-sm"
                   title="Flip Board"
                 >
-                  <RotateCcw size={14} />
+                  <RotateCcw size={15} />
                 </button>
-              </div>
-            )}
-
-            {/* Draw Offer Banner */}
-            {gameState?.drawOffer && gameState.drawOffer !== myRole && !isSpectator && (
-              <div className="w-full rounded-[14px] border border-[#B18A52] bg-[#FAF8F5] p-3.5 flex items-center justify-between shadow-sm">
-                <span className="font-cinzel text-xs text-[#B18A52] font-semibold">
-                  Opponent offers peace (Draw)
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleRespondDraw(true)}
-                    className="font-cinzel text-xs px-3.5 py-1 rounded-full bg-[#5B6E57] text-[#FAF8F5] font-bold transition shadow-sm"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleRespondDraw(false)}
-                    className="font-cinzel text-xs px-3.5 py-1 rounded-full border border-[#CEBEA8] text-[#241E19] hover:bg-[#F4F0E8] transition font-semibold"
-                  >
-                    Decline
-                  </button>
-                </div>
               </div>
             )}
           </div>
@@ -587,17 +777,17 @@ export const OnlineArenaPage: React.FC = () => {
           <div className="w-full lg:w-80 space-y-5">
             {/* Game Status Card */}
             <RoyalCard className="space-y-4">
-              <span className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] block border-b border-[#E2D9CB] pb-2 font-semibold">
+              <span className="font-cinzel text-xs uppercase tracking-wider text-[#B08401] block border-b border-[#DED1BD] pb-2 font-semibold">
                 Arbiter Clock & State
               </span>
 
               {gameState?.status === 'waiting' && (
                 <div className="text-center py-4 space-y-3">
                   <div className="text-3xl animate-bounce">⏳</div>
-                  <h4 className="font-serif italic text-lg text-[#241E19]">
+                  <h4 className="font-serif italic text-lg text-[#683B2B]">
                     Awaiting Challenger…
                   </h4>
-                  <p className="text-xs text-[#786F66]">
+                  <p className="text-xs text-[#7A6658]">
                     Distribute this match challenge link to initiate live multiplayer arbitration:
                   </p>
                   <CopyButton
@@ -612,8 +802,8 @@ export const OnlineArenaPage: React.FC = () => {
 
               {gameState?.status === 'in_progress' && (
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-cinzel text-[#786F66] font-semibold">Turn to Move:</span>
-                  <span className="font-cinzel text-sm text-[#241E19] font-bold flex items-center gap-1.5">
+                  <span className="font-cinzel text-[#7A6658] font-semibold">Turn to Move:</span>
+                  <span className="font-cinzel text-sm text-[#683B2B] font-bold flex items-center gap-1.5">
                     {gameState.turn === 'w' ? '♔ White' : '♚ Black'}
                     {gameState.isCheck && <span className="text-[#9E3B3B] font-bold">(Check!)</span>}
                   </span>
@@ -621,35 +811,35 @@ export const OnlineArenaPage: React.FC = () => {
               )}
 
               {gameState?.status === 'completed' && (
-                <div className="rounded-[14px] border border-[#B18A52] bg-[#F4F0E8] p-5 text-center space-y-3 shadow-sm">
+                <div className="rounded-[14px] border border-[#B08401] bg-[#FAF6F2] p-5 text-center space-y-3 shadow-sm">
                   <div className="text-3xl">🏆</div>
-                  <h4 className="font-serif italic text-2xl text-[#241E19]">
+                  <h4 className="font-serif italic text-2xl text-[#683B2B]">
                     {gameState.winner === 'draw'
                       ? 'Game Concluded in Draw'
                       : `${gameState.winner === 'w' ? 'White' : 'Black'} Triumphant!`}
                   </h4>
-                  <p className="font-cinzel text-xs text-[#786F66] capitalize font-semibold">
+                  <p className="font-cinzel text-xs text-[#7A6658] capitalize font-semibold">
                     Reason: {gameState.endReason?.replace('_', ' ')}
                   </p>
-                  <RoyalButton
-                    to="/arena"
-                    variant="primary"
-                    className="w-full justify-center text-xs mt-2"
+                  <button
+                    type="button"
+                    onClick={() => setShowResultModal(true)}
+                    className="w-full py-2 px-4 rounded-full bg-[#B08401] text-[#FAF6F2] font-cinzel text-xs font-semibold shadow-sm hover:bg-[#997200] transition"
                   >
-                    Enter New Challenge
-                  </RoyalButton>
+                    View Official Result
+                  </button>
                 </div>
               )}
             </RoyalCard>
 
             {/* Move Notation Card */}
             <RoyalCard className="space-y-3">
-              <span className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] block border-b border-[#E2D9CB] pb-2 font-semibold">
+              <span className="font-cinzel text-xs uppercase tracking-wider text-[#B08401] block border-b border-[#DED1BD] pb-2 font-semibold">
                 Move Notation (PGN)
               </span>
-              <div className="max-h-72 overflow-y-auto space-y-1 font-mono text-xs pr-1 divide-y divide-[#E2D9CB]">
+              <div className="max-h-72 overflow-y-auto space-y-1 font-mono text-xs pr-1 divide-y divide-[#DED1BD]">
                 {gameState?.moves.length === 0 ? (
-                  <p className="text-[#786F66] font-cinzel text-xs text-center py-4">
+                  <p className="text-[#7A6658] font-cinzel text-xs text-center py-4">
                     First move pending
                   </p>
                 ) : (
@@ -657,10 +847,10 @@ export const OnlineArenaPage: React.FC = () => {
                     const whiteMove = gameState?.moves[i * 2]
                     const blackMove = gameState?.moves[i * 2 + 1]
                     return (
-                      <div key={i} className="flex py-1.5 px-2 rounded hover:bg-[#F4F0E8] transition">
-                        <span className="font-cinzel text-[#B18A52] w-8 font-bold">{i + 1}.</span>
-                        <span className="text-[#241E19] flex-1 font-medium">{whiteMove?.san || ''}</span>
-                        <span className="text-[#786F66] flex-1">{blackMove?.san || ''}</span>
+                      <div key={i} className="flex py-1.5 px-2 rounded hover:bg-[#FAF6F2] transition">
+                        <span className="font-cinzel text-[#B08401] w-8 font-bold">{i + 1}.</span>
+                        <span className="text-[#683B2B] flex-1 font-medium">{whiteMove?.san || ''}</span>
+                        <span className="text-[#7A6658] flex-1">{blackMove?.san || ''}</span>
                       </div>
                     )
                   })
@@ -677,24 +867,24 @@ export const OnlineArenaPage: React.FC = () => {
 
   // Lobby View (No Room ID)
   return (
-    <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
+    <div className="min-h-screen bg-[#FAF6F2] text-[#683B2B] font-sans flex flex-col selection:bg-[#B08401]/25 selection:text-[#683B2B]">
       <RoyalHeader />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
         {/* Editorial Hero Banner */}
-        <div className="space-y-4 border-b border-[#514538] pb-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#514538] bg-[#2E2925] shadow-sm">
-            <Swords size={14} className="text-[#B18A52]" />
-            <span className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B18A52] font-semibold">
+        <div className="space-y-4 border-b border-[#DED1BD] pb-8">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#DED1BD] bg-[#FFFFFF] shadow-sm">
+            <Swords size={14} className="text-[#B08401]" />
+            <span className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B08401] font-semibold">
               Live Championship Arena
             </span>
           </div>
 
-          <h1 className="font-serif italic font-normal text-3xl sm:text-4xl lg:text-5xl text-[#F3EDE3] tracking-tight">
-            Grandmaster <span className="text-[#B18A52]">Online Arena</span>
+          <h1 className="font-serif italic font-normal text-3xl sm:text-4xl lg:text-5xl text-[#683B2B] tracking-tight">
+            Grandmaster <span className="text-[#B08401]">Online Arena</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-[#B9AEA0] max-w-3xl leading-relaxed font-sans">
+          <p className="text-sm sm:text-base text-[#7A6658] max-w-3xl leading-relaxed font-sans">
             Execute live chess fixtures with authoritative move legality verification, synchronized Fischer decrement clocks, spectator broadcasts, and instant challenge links.
           </p>
         </div>
@@ -703,30 +893,30 @@ export const OnlineArenaPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Create Match Column */}
           <RoyalCard className="lg:col-span-1 space-y-6">
-            <div className="border-b border-[#514538] pb-3">
-              <p className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] font-semibold">
+            <div className="border-b border-[#DED1BD] pb-3">
+              <p className="font-cinzel text-xs uppercase tracking-wider text-[#B08401] font-semibold">
                 Arena Genesis
               </p>
-              <h2 className="font-serif italic text-2xl text-[#F3EDE3] mt-0.5">
+              <h2 className="font-serif italic text-2xl text-[#683B2B] mt-0.5">
                 Issue a Challenge
               </h2>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Competitor Name
                 </label>
                 <input
                   type="text"
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
-                  className="w-full bg-[#302A25] border border-[#514538] rounded-[12px] px-3.5 py-2 text-sm text-[#F3EDE3] placeholder-[#B9AEA0]/50 focus:outline-none focus:border-[#B18A52] transition font-sans shadow-inner"
+                  className="w-full bg-[#FFFFFF] border border-[#DED1BD] rounded-[12px] px-3.5 py-2 text-sm text-[#683B2B] placeholder-[#9E8B7D] focus:outline-none focus:border-[#B08401] transition font-sans shadow-inner"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
+                <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Time Control
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -743,8 +933,8 @@ export const OnlineArenaPage: React.FC = () => {
                       onClick={() => setTimePreset(tc.id as any)}
                       className={`py-2 px-3 rounded-[12px] font-cinzel text-xs transition border font-semibold ${
                         timePreset === tc.id
-                          ? 'border-[#241E19] bg-[#241E19] text-[#FAF8F5] shadow-sm'
-                          : 'border-[#CEBEA8] bg-[#FAF8F5] text-[#786F66] hover:border-[#241E19]'
+                          ? 'border-[#B08401] bg-[#B08401] text-[#FAF6F2] shadow-sm'
+                          : 'border-[#DED1BD] bg-[#FFFFFF] text-[#7A6658] hover:border-[#683B2B]'
                       }`}
                     >
                       {tc.label}
@@ -754,7 +944,7 @@ export const OnlineArenaPage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="font-cinzel text-xs uppercase tracking-wider text-[#786F66] block font-semibold">
+                <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                   Color Assignment
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -769,8 +959,8 @@ export const OnlineArenaPage: React.FC = () => {
                       onClick={() => setColorPref(c.id as any)}
                       className={`py-2 px-2 rounded-[12px] font-cinzel text-xs transition flex flex-col items-center gap-1 border font-semibold ${
                         colorPref === c.id
-                          ? 'border-[#241E19] bg-[#241E19] text-[#FAF8F5] shadow-sm'
-                          : 'border-[#CEBEA8] bg-[#FAF8F5] text-[#786F66] hover:border-[#241E19]'
+                          ? 'border-[#B08401] bg-[#B08401] text-[#FAF6F2] shadow-sm'
+                          : 'border-[#DED1BD] bg-[#FFFFFF] text-[#7A6658] hover:border-[#683B2B]'
                       }`}
                     >
                       <span className="text-base">{c.icon}</span>
@@ -792,8 +982,8 @@ export const OnlineArenaPage: React.FC = () => {
             </div>
 
             {/* Direct Join by Room ID */}
-            <div className="pt-4 border-t border-[#E2D9CB] space-y-2">
-              <label className="font-cinzel text-xs uppercase tracking-wider text-[#786F66] block font-semibold">
+            <div className="pt-4 border-t border-[#DED1BD] space-y-2">
+              <label className="font-cinzel text-xs uppercase tracking-wider text-[#7A6658] block font-semibold">
                 Direct Fixture Teleport
               </label>
               <div className="flex gap-2">
@@ -802,7 +992,7 @@ export const OnlineArenaPage: React.FC = () => {
                   placeholder="e.g. arena-abc123"
                   value={directRoomInput}
                   onChange={(e) => setDirectRoomInput(e.target.value)}
-                  className="flex-1 bg-[#FAF8F5] border border-[#CEBEA8] rounded-[12px] px-3.5 py-1.5 text-xs text-[#241E19] placeholder-[#786F66] focus:outline-none focus:border-[#B18A52] font-mono shadow-inner"
+                  className="flex-1 bg-[#FFFFFF] border border-[#DED1BD] rounded-[12px] px-3.5 py-1.5 text-xs text-[#683B2B] placeholder-[#9E8B7D] focus:outline-none focus:border-[#B08401] font-mono shadow-inner"
                 />
                 <RoyalButton
                   type="button"
@@ -818,19 +1008,19 @@ export const OnlineArenaPage: React.FC = () => {
 
           {/* Active Matches Column */}
           <div className="lg:col-span-2 space-y-5">
-            <div className="flex items-center justify-between border-b border-[#E2D9CB] pb-3">
+            <div className="flex items-center justify-between border-b border-[#DED1BD] pb-3">
               <div>
-                <p className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] font-semibold">
+                <p className="font-cinzel text-xs uppercase tracking-wider text-[#B08401] font-semibold">
                   Continuous Arbitration
                 </p>
-                <h2 className="font-serif italic text-2xl text-[#241E19]">
+                <h2 className="font-serif italic text-2xl text-[#683B2B]">
                   Active Grandmaster Matches
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={fetchActiveMatches}
-                className="font-cinzel text-xs text-[#B18A52] hover:underline inline-flex items-center gap-1.5 font-semibold"
+                className="font-cinzel text-xs text-[#B08401] hover:underline inline-flex items-center gap-1.5 font-semibold"
               >
                 <RefreshCw size={12} />
                 <span>Synchronize</span>
@@ -846,15 +1036,15 @@ export const OnlineArenaPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {activeMatches.map((m: any) => (
                   <RoyalCard key={m.id} className="space-y-4">
-                    <div className="flex items-center justify-between text-xs border-b border-[#E2D9CB] pb-2">
-                      <span className="font-mono text-xs text-[#786F66]">{m.id}</span>
+                    <div className="flex items-center justify-between text-xs border-b border-[#DED1BD] pb-2">
+                      <span className="font-mono text-xs text-[#7A6658]">{m.id}</span>
                       <span
                         className={`font-cinzel text-[10px] px-2.5 py-0.5 rounded-full border uppercase font-bold ${
                           m.status === 'waiting'
-                            ? 'border-[#B18A52]/40 bg-[#B18A52]/10 text-[#B18A52]'
+                            ? 'border-[#B08401]/40 bg-[#B08401]/10 text-[#B08401]'
                             : m.status === 'in_progress'
                             ? 'border-[#5B6E57]/40 bg-[#5B6E57]/10 text-[#5B6E57]'
-                            : 'border-[#CEBEA8] bg-[#FAF8F5] text-[#786F66]'
+                            : 'border-[#DED1BD] bg-[#FAF6F2] text-[#7A6658]'
                         }`}
                       >
                         {m.status.replace('_', ' ')}
@@ -863,17 +1053,17 @@ export const OnlineArenaPage: React.FC = () => {
 
                     <div className="space-y-1.5 text-sm">
                       <div className="flex items-center gap-2">
-                        <span className="font-cinzel text-xs text-[#786F66] font-semibold">♔ White:</span>
-                        <span className="font-serif text-[#241E19] truncate font-medium">{m.whiteName}</span>
+                        <span className="font-cinzel text-xs text-[#7A6658] font-semibold">♔ White:</span>
+                        <span className="font-serif text-[#683B2B] truncate font-medium">{m.whiteName}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-cinzel text-xs text-[#786F66] font-semibold">♚ Black:</span>
-                        <span className="font-serif text-[#241E19] truncate font-medium">{m.blackName}</span>
+                        <span className="font-cinzel text-xs text-[#7A6658] font-semibold">♚ Black:</span>
+                        <span className="font-serif text-[#683B2B] truncate font-medium">{m.blackName}</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-[#E2D9CB] text-xs">
-                      <span className="font-cinzel text-xs text-[#786F66]">⏱ {m.timeControl}</span>
+                    <div className="flex items-center justify-between pt-3 border-t border-[#DED1BD] text-xs">
+                      <span className="font-cinzel text-xs text-[#7A6658]">⏱ {m.timeControl}</span>
                       <RoyalButton
                         to={`/arena/${m.id}`}
                         variant={m.status === 'waiting' ? 'primary' : 'secondary'}

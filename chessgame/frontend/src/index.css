@@ -4,27 +4,30 @@
 
 @layer base {
   :root {
-    /* Warm Dark Luxury Palette */
-    --gm-main-bg: #24211E;
-    --gm-secondary-bg: #2E2925;
-    --gm-elevated: #38312B;
-    --gm-input-bg: #302A25;
-    --gm-text-primary: #F3EDE3;
-    --gm-text-secondary: #B9AEA0;
-    --gm-border: #514538;
-    --gm-border-strong: #665747;
-    --gm-gold: #B18A52;
-    --gm-gold-hover: #C49D63;
-    --gm-bronze: #8C6B3E;
+    /* Exact Reference Palette: Soft Ivory & Warm Luxury */
+    --gm-main-bg: #FAF6F2;
+    --gm-secondary-bg: #F4EEE7;
+    --gm-card-bg: #FFFFFF;
+    --gm-beige: #DED1BD;
+    --gm-gold: #B08401;
+    --gm-gold-hover: #997200;
+    --gm-rose: #D49E8D;
+    --gm-deep-brown: #683B2B;
+    
+    --gm-text-primary: #683B2B;
+    --gm-text-secondary: #7A6658;
+    --gm-text-muted: #9E8B7D;
+    --gm-border: #DED1BD;
+    --gm-border-strong: #C9BAA3;
     --gm-sage: #5B6E57;
     --gm-crimson: #9E3B3B;
 
     /* Semantic Compatibility Tokens */
-    --gm-parchment: #24211E;
-    --gm-surface: #2E2925;
-    --gm-walnut: #F3EDE3;
-    --gm-walnut-muted: #B9AEA0;
-    --gm-umber: #B9AEA0;
+    --gm-parchment: #FAF6F2;
+    --gm-surface: #FFFFFF;
+    --gm-walnut: #683B2B;
+    --gm-walnut-muted: #7A6658;
+    --gm-umber: #7A6658;
   }
 
   body {
@@ -36,57 +39,71 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(46, 41, 37, 0.7) 0px, transparent 60%),
-      radial-gradient(at 100% 100%, rgba(32, 29, 26, 0.9) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(222, 209, 189, 0.4) 0px, transparent 60%),
+      radial-gradient(at 100% 100%, rgba(212, 158, 141, 0.15) 0px, transparent 50%);
     background-attachment: fixed;
   }
 
-  /* Accessible Antique Gold Focus Ring */
+  /* Accessible Mustard Gold Focus Ring */
   *:focus-visible {
     outline: 2px solid var(--gm-gold);
     outline-offset: 2px;
   }
 }
 
-/* Warm Dark Luxury Parchment Wash */
+/* Soft Ivory Parchment Wash */
 .gm-parchment-wash {
-  background: linear-gradient(180deg, #2E2925 0%, #24211E 100%);
+  background: linear-gradient(180deg, #FAF6F2 0%, #F4EEE7 100%);
 }
 
-/* Warm Dark Luxury Surface Card */
+/* Clean Warm Card */
 .gm-card {
-  background-color: #2E2925;
-  border: 1px solid #514538;
+  background-color: #FFFFFF;
+  border: 1px solid #DED1BD;
   border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(104, 59, 43, 0.05), 0 4px 12px rgba(104, 59, 43, 0.03);
 }
 
-/* Primary Institutional Button */
+/* Primary Mustard Gold Button */
 .gm-btn-primary {
-  background-color: #B18A52;
-  color: #24211E;
-  border: 1px solid #B18A52;
+  background-color: #B08401;
+  color: #FAF6F2;
+  border: 1px solid #B08401;
   border-radius: 9999px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   transition: all 150ms ease-in-out;
 }
 .gm-btn-primary:hover {
-  background-color: #C49D63;
+  background-color: #997200;
+}
+
+/* Secondary Button */
+.gm-btn-secondary {
+  background-color: #DED1BD;
+  color: #683B2B;
+  border: 1px solid #C9BAA3;
+  border-radius: 9999px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  transition: all 150ms ease-in-out;
+}
+.gm-btn-secondary:hover {
+  background-color: #D4C5AE;
 }
 
 /* Form Input Styling */
 .gm-input {
-  background-color: #302A25;
-  border: 1px solid #514538;
+  background-color: #FFFFFF;
+  border: 1px solid #DED1BD;
   border-radius: 12px;
-  color: #F3EDE3;
+  color: #683B2B;
   transition: all 150ms ease-in-out;
 }
 .gm-input:focus {
   outline: none;
-  border-color: #B18A52;
-  box-shadow: 0 0 0 1px #B18A52;
+  border-color: #B08401;
+  box-shadow: 0 0 0 1px #B08401;
 }
 
 /* Custom Styled Scrollbars */
@@ -95,12 +112,12 @@
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #24211E;
+  background: #FAF6F2;
 }
 ::-webkit-scrollbar-thumb {
-  background: #514538;
-  border-radius: 4px;
+  background: #DED1BD;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B18A52;
+  background: #C9BAA3;
 }

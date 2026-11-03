@@ -68,23 +68,22 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
     }
   };
 
-  // Base styling for Grandmaster Suite buttons
   const baseStyles =
-    'inline-flex items-center justify-center gap-1.5 font-medium rounded-full transition-all duration-150 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B18A52] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] font-sans';
+    'inline-flex items-center justify-center gap-1.5 font-medium rounded-full transition-all duration-150 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B08401] disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] font-sans';
 
   const variantStyles = {
     primary: copied
-      ? 'bg-[#5B6E57] text-[#F3EDE3] font-medium shadow-sm'
-      : 'bg-[#B18A52] text-[#24211E] hover:bg-[#C49D63] font-semibold',
+      ? 'bg-[#5B6E57] text-[#FAF6F2] font-medium shadow-sm'
+      : 'bg-[#B08401] text-[#FAF6F2] hover:bg-[#997200] font-semibold',
     secondary: copied
-      ? 'bg-[#5B6E57]/20 text-[#6E8B67] border border-[#5B6E57]/50'
-      : 'bg-[#302A25] hover:bg-[#38312B] text-[#F3EDE3] border border-[#514538] hover:border-[#B18A52]/60',
+      ? 'bg-[#5B6E57]/15 text-[#5B6E57] border border-[#5B6E57]/40'
+      : 'bg-[#FFFFFF] hover:bg-[#FAF6F2] text-[#683B2B] border border-[#DED1BD] hover:border-[#B08401] shadow-sm',
     subtle: copied
-      ? 'bg-[#5B6E57]/20 text-[#6E8B67] border border-[#5B6E57]/40'
-      : 'bg-transparent hover:bg-[#302A25] text-[#B9AEA0] hover:text-[#F3EDE3] border border-transparent',
+      ? 'bg-[#5B6E57]/15 text-[#5B6E57] border border-[#5B6E57]/40'
+      : 'bg-transparent hover:bg-[#DED1BD]/40 text-[#7A6658] hover:text-[#683B2B] border border-transparent',
     'icon-only': copied
-      ? 'p-2 bg-[#5B6E57]/20 text-[#6E8B67] border border-[#5B6E57]/50 rounded-full'
-      : 'p-2 bg-[#302A25] hover:bg-[#38312B] text-[#B9AEA0] hover:text-[#F3EDE3] border border-[#514538] rounded-full',
+      ? 'p-2 bg-[#5B6E57]/15 text-[#5B6E57] border border-[#5B6E57]/40 rounded-full'
+      : 'p-2 bg-[#FFFFFF] hover:bg-[#FAF6F2] text-[#7A6658] hover:text-[#683B2B] border border-[#DED1BD] rounded-full shadow-sm',
   }[variant];
 
   const sizeStyles =
@@ -112,12 +111,12 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
     >
       {copied ? (
         <>
-          <Check size={iconSize} className="text-emerald-400 shrink-0 animate-in zoom-in-50 duration-150" />
-          {variant !== 'icon-only' && <span className="font-semibold text-emerald-400">{copiedLabel}</span>}
+          <Check size={iconSize} className="text-[#5B6E57] shrink-0 animate-in zoom-in-50 duration-150" />
+          {variant !== 'icon-only' && <span className="font-semibold text-[#5B6E57]">{copiedLabel}</span>}
         </>
       ) : (
         <>
-          <Copy size={iconSize} className="shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
+          <Copy size={iconSize} className="shrink-0 opacity-70 group-hover:opacity-100 transition-opacity text-[#683B2B]" />
           {variant !== 'icon-only' && <span>{label}</span>}
         </>
       )}
