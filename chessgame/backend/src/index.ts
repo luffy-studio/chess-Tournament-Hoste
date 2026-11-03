@@ -280,6 +280,27 @@ app.get('/api/system/info', (req, res) => {
   });
 });
 
+// Welcome / Root Status endpoints
+const apiStatusHandler = (req: express.Request, res: express.Response) => {
+  res.status(200).json({
+    status: 'online',
+    name: 'Grandmaster Suite API',
+    version: '2.2.0',
+    platform: 'Production Cloud / LAN Hybrid',
+    creator: 'Sarvagya Sharma',
+    endpoints: {
+      health: '/api/health',
+      tournaments: '/api/tournaments',
+      auth: '/api/auth',
+      arena: '/api/arena',
+      system: '/api/system/info',
+    },
+  });
+};
+
+app.get('/', apiStatusHandler);
+app.get('/api', apiStatusHandler);
+
 // Mount Primary Routes under /api
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
