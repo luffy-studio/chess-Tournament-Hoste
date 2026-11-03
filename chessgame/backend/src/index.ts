@@ -37,9 +37,15 @@ const prisma = new PrismaClient({
  * Validates whether an incoming HTTP or WebSocket origin is authorized.
  */
 function isOriginAllowed(origin: string | undefined): boolean {
-  if (!origin) return true; // allow same-origin, curl, server-to-server
+  if (!origin) return true; // allow same-origin, curl, server-to-server, mobile
 
-  const allowedList = (process.env.CORS_ALLOWED_ORIGINS || '')
+  const rawOrigins = process.env.CORS_ALLOWED_ORIGINS;
+  // If not configured, empty, or wildcard '*', permit all origins
+  if (!rawOrigins || rawOrigins.trim() === '' || rawOrigins.trim() === '*') {
+    return true;
+  }
+
+  const allowedList = rawOrigins
     .split(',')
     .map((o) => o.trim())
     .filter(Boolean);
@@ -48,12 +54,18 @@ function isOriginAllowed(origin: string | undefined): boolean {
     return true;
   }
 
-  // In development or local LAN mode, allow localhost and private RFC-1918 subnets
-  const isDevOrLan = process.env.NODE_ENV !== 'production' || process.env.ALLOW_LAN_CORS === 'true';
-  if (isDevOrLan) {
-    try {
-      const url = new URL(origin);
-      const host = url.hostname;
+  try {
+    const url = new URL(origin);
+    const host = url.hostname;
+
+    // Automatically allow all Vercel domains (*.vercel.app)
+    if (host.endsWith('.vercel.app') || host === 'vercel.app') {
+      return true;
+    }
+
+    // In development or local LAN mode, allow localhost and private RFC-1918 subnets
+    const isDevOrLan = process.env.NODE_ENV !== 'production' || process.env.ALLOW_LAN_CORS === 'true';
+    if (isDevOrLan) {
       if (
         host === 'localhost' ||
         host === '127.0.0.1' ||
@@ -63,9 +75,9 @@ function isOriginAllowed(origin: string | undefined): boolean {
       ) {
         return true;
       }
-    } catch {
-      return false;
     }
+  } catch {
+    return false;
   }
 
   return false;
@@ -101,13 +113,13 @@ app.use(
 // Structured request logging with correlation ID
 app.use(requestLogger);
 
-// Strict CORS with explicit origin allowlist
+// CORS with origin validation and automatic Vercel/LAN support
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
     if (isOriginAllowed(origin)) {
       callback(null, true);
     } else {
-      callback(new AppError(`Origin "${origin}" not allowed by CORS policy.`, 403, 'CORS_DISALLOWED'));
+      callback(null, false);
     }
   },
   credentials: true,
@@ -116,6 +128,7 @@ const corsOptions: cors.CorsOptions = {
   exposedHeaders: ['X-Request-Id'],
 };
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // JSON parser with size limit to prevent payload flooding
 app.use(express.json({ limit: '2mb' }));
@@ -267,7 +280,7 @@ app.get('/api/system/info', (req, res) => {
   });
 });
 
-// Mount Routes
+// Mount Primary Routes under /api
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tournaments', tournamentRoutes);
@@ -277,10 +290,15 @@ app.use('/api/arena', arenaRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/system', systemRoutes);
 
-// Legacy health check alias
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Backend is healthy' });
-});
+// Root route aliases (permits clients to query /tournaments, /auth without /api prefix)
+app.use('/health', healthRoutes);
+app.use('/auth', authRoutes);
+app.use('/tournaments', tournamentRoutes);
+app.use('/tournaments/:tournamentId/participants', participantRoutes);
+app.use('/tournaments/:tournamentId/matches', matchRoutes);
+app.use('/arena', arenaRoutes);
+app.use('/webhooks', webhookRoutes);
+app.use('/system', systemRoutes);
 
 // 404 Route Catch-all
 app.use((req, res, next) => {

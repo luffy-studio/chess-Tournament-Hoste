@@ -4,18 +4,35 @@ import toast from 'react-hot-toast';
 /**
  * Dynamically resolves the API base URL.
  * - Prioritizes VITE_API_URL environment variable if provided.
- * - Otherwise resolves dynamically based on the current browser host (e.g. 192.168.x.x on LAN or localhost).
+ * - Ensures `/api` is cleanly appended if missing (e.g. if user sets base host).
+ * - In cloud production (e.g. Vercel), if VITE_API_URL is omitted or set to '/api',
+ *   requests stay same-origin via Vercel rewrites to proxy to Render (masking Render API URL & eliminating CORS).
+ * - In local development / LAN, dynamically targets port 5000 on the current host.
  */
 export function getApiBaseUrl(): string {
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
-    return envUrl.trim().replace(/\/+$/, '');
+    const clean = envUrl.trim().replace(/\/+$/, '');
+    if (clean === '/api' || clean.endsWith('/api')) {
+      return clean;
+    }
+    return `${clean}/api`;
   }
 
   if (typeof window !== 'undefined' && window.location) {
     const { protocol, hostname } = window.location;
-    // Connect to port 5000 on the same host
-    return `${protocol}//${hostname}:5000/api`;
+    // Local development or private LAN network
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.') ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+    ) {
+      return `${protocol}//${hostname}:5000/api`;
+    }
+    // Production default: same-origin /api (masked via Vercel rewrites)
+    return '/api';
   }
 
   return 'http://localhost:5000/api';
@@ -26,7 +43,22 @@ export function getApiBaseUrl(): string {
  * Strips any trailing `/api` from the API URL.
  */
 export function getSocketBaseUrl(): string {
+  const envSocket = import.meta.env.VITE_SOCKET_URL;
+  if (envSocket && typeof envSocket === 'string' && envSocket.trim().length > 0) {
+    return envSocket.trim().replace(/\/+$/, '');
+  }
+
+  const envApi = import.meta.env.VITE_API_URL;
+  if (envApi && typeof envApi === 'string' && envApi.trim().length > 0 && envApi !== '/api') {
+    return envApi.trim().replace(/\/api\/?$/, '').replace(/\/+$/, '');
+  }
+
   const apiUrl = getApiBaseUrl();
+  if (apiUrl.startsWith('/')) {
+    // Relative API URL on Vercel: fallback to live Render backend
+    return 'https://chess-tournament-hoste.onrender.com';
+  }
+
   return apiUrl.replace(/\/api\/?$/, '');
 }
 

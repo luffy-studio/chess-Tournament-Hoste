@@ -1,0 +1,28 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://chess-tournament-hoste.onrender.com/api/:path*"
+    },
+    {
+      "source": "/tournaments/:path*",
+      "destination": "https://chess-tournament-hoste.onrender.com/api/tournaments/:path*"
+    },
+    {
+      "source": "/tournaments",
+      "destination": "https://chess-tournament-hoste.onrender.com/api/tournaments"
+    },
+    {
+      "source": "/auth/:path*",
+      "destination": "https://chess-tournament-hoste.onrender.com/api/auth/:path*"
+    },
+    {
+      "source": "/system/:path*",
+      "destination": "https://chess-tournament-hoste.onrender.com/api/system/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
