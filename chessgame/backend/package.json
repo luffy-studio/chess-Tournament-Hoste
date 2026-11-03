@@ -1,7 +1,9 @@
 {
   "name": "chess-backend",
   "version": "1.0.0",
-  "description": "Backend for Chess Tournament Platform",
+  "description": "Backend for Grandmaster Suite Chess Tournament Platform",
+  "author": "Sarvagya Sharma",
+  "license": "Custom (Sarvagya Sharma)",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",

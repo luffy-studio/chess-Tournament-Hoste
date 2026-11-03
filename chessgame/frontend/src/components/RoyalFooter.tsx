@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 export const RoyalFooter: React.FC = () => {
   return (
-    <footer className="border-t border-[#E2D9CB] bg-[#FAF8F5] mt-24 py-14 px-4 sm:px-6 lg:px-8 transition-colors">
+    <footer className="border-t border-[#E2D9CB] bg-[#FAF8F5] mt-24 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
         
         {/* Left: Brand Crest & Institutional Wordmark */}
@@ -22,7 +22,7 @@ export const RoyalFooter: React.FC = () => {
               <span className="text-[#B18A52] ml-1.5 font-extrabold">SUITE</span>
             </div>
             <p className="font-serif italic text-xs text-[#786F66] mt-1">
-              Official Tournament Arbitration & Grand Prix Ledger
+              Tournament Arbitration & Grand Prix Ledger Platform
             </p>
           </div>
         </div>
@@ -44,19 +44,15 @@ export const RoyalFooter: React.FC = () => {
           <Link to="/admin" className="hover:text-[#241E19] transition">
             Arbiter Portal
           </Link>
-          <span className="text-[#CEBEA8]">•</span>
-          <Link to="/standalone" className="hover:text-[#241E19] transition">
-            Offline Mode
-          </Link>
         </div>
 
-        {/* Right: FIDE Standard Seal & Copyright */}
+        {/* Right: Creator Attribution, Concept & License Credits */}
         <div className="text-center md:text-right space-y-1">
-          <p className="font-cinzel text-[11px] text-[#B18A52] uppercase tracking-wider font-semibold">
-            FIDE Dutch Swiss & Berger Compliant
+          <p className="font-cinzel text-xs text-[#B18A52] uppercase tracking-wider font-bold">
+            Conceived & Architected by Sarvagya Sharma
           </p>
           <p className="text-[11px] text-[#786F66] font-sans">
-            &copy; {new Date().getFullYear()} Grandmaster Suite. All institutional rights reserved.
+            &copy; {new Date().getFullYear()} Sarvagya Sharma. All rights, concept & license reserved.
           </p>
         </div>
       </div>

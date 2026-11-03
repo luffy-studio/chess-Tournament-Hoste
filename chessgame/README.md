@@ -210,3 +210,12 @@ chessgame/
 - **Export Results CSV**: Board-by-board match histories with result flags.
 - **Full JSON Snapshot**: Complete dump of tournaments, participants, matches, and audit logs via `GET /api/tournaments/:id/export`.
 - **Standalone IndexedDB**: Backups can be exported and re-imported directly within the offline browser console.
+
+---
+
+## 👑 Credits & Ownership
+
+**Created, Conceived & Architected by Sarvagya Sharma.**
+All concepts, software architecture, UI/UX designs, algorithms, and platform ideas for the Grandmaster Suite platform are the original creation and property of **Sarvagya Sharma**.
+
+&copy; 2026 Sarvagya Sharma. All rights, concept, and licensing reserved.

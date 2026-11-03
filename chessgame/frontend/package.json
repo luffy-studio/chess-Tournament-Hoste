@@ -1,7 +1,9 @@
 {
   "name": "chess-tournament-platform",
   "version": "1.0.0",
-  "description": "Interactive web platform to manage offline chess tournaments with live standings, auto-pairing, and CSV exports",
+  "description": "Grandmaster Suite — Official Chess Tournament Platform conceived and architected by Sarvagya Sharma",
+  "author": "Sarvagya Sharma",
+  "license": "Custom (Sarvagya Sharma)",
   "type": "module",
   "scripts": {
     "dev": "vite",

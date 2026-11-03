@@ -686,7 +686,7 @@ export const OnlineArenaPage: React.FC = () => {
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#CEBEA8] bg-[#FAF8F5] shadow-sm">
             <Swords size={14} className="text-[#B18A52]" />
             <span className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B18A52] font-semibold">
-              Real-Time WebSocket Grid
+              Live Championship Arena
             </span>
           </div>
 
@@ -695,7 +695,7 @@ export const OnlineArenaPage: React.FC = () => {
           </h1>
 
           <p className="text-sm sm:text-base text-[#786F66] max-w-3xl leading-relaxed font-sans">
-            Execute real-time chess fixtures with authoritative FIDE move legality verification, synchronized Fischer decrement clocks, spectator broadcasts, and instant challenge links.
+            Execute live chess fixtures with authoritative move legality verification, synchronized Fischer decrement clocks, spectator broadcasts, and instant challenge links.
           </p>
         </div>
 
