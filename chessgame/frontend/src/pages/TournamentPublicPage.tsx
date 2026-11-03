@@ -32,7 +32,7 @@ export const TournamentPublicPage: React.FC = () => {
 
   if (loading && !tournament) {
     return (
-      <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col relative">
+      <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col relative">
         <RoyalHeader />
         <main className="flex-1 flex items-center justify-center">
           <RoyalLoading message="Consulting championship broadsheet…" />
@@ -44,7 +44,7 @@ export const TournamentPublicPage: React.FC = () => {
 
   if (!tournament) {
     return (
-      <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col relative">
+      <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col relative">
         <RoyalHeader />
         <main className="flex-1 flex items-center justify-center px-4 py-20">
           <RoyalEmpty
@@ -93,35 +93,35 @@ export const TournamentPublicPage: React.FC = () => {
   const standings = getStandings()
 
   return (
-    <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col relative selection:bg-[#B18A52]/25 selection:text-[#241E19]">
+    <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col relative selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
       <RoyalHeader />
 
       <main className="flex-1 relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8" ref={standingsRef}>
         {/* TOURNAMENT HERO BROADSIDE */}
         <RoyalCard className="space-y-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#E2D9CB] pb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#514538] pb-6">
             <div className="space-y-2 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B18A52] font-semibold">
                   Official Broadside
                 </span>
-                <span className="text-[#CEBEA8] text-xs">•</span>
+                <span className="text-[#514538] text-xs">•</span>
                 <ConnectionBadge socket={socket} />
               </div>
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#241E19] tracking-tight leading-[1.08] font-normal">
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#F3EDE3] tracking-tight leading-[1.08] font-normal">
                 {tournament.name}
               </h1>
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <StatusBadge status={tournament.status} />
                 <ModeBadge mode={tournament.mode} />
                 {tournament.timeControl && (
-                  <span className="font-cinzel text-xs text-[#786F66] border border-[#CEBEA8] px-2.5 py-0.5 rounded-full bg-[#FAF8F5]">
+                  <span className="font-cinzel text-xs text-[#B9AEA0] border border-[#514538] px-2.5 py-0.5 rounded-full bg-[#302A25]">
                     {tournament.timeControl}
                   </span>
                 )}
                 {tournament.venue && (
-                  <span className="font-sans text-xs text-[#786F66]">
-                    Venue: <strong className="text-[#241E19] font-medium">{tournament.venue}</strong>
+                  <span className="font-sans text-xs text-[#B9AEA0]">
+                    Venue: <strong className="text-[#F3EDE3] font-medium">{tournament.venue}</strong>
                   </span>
                 )}
               </div>

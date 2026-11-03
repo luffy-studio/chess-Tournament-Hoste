@@ -67,18 +67,18 @@ export const ParticipantPage: React.FC = () => {
   const announcements = tournament?.announcements ?? []
 
   return (
-    <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col selection:bg-[#B18A52]/20 selection:text-[#241E19]">
+    <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
       <RoyalHeader />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
         {/* Header & Page Title */}
-        <div className="space-y-2 border-b border-[#E2D9CB] pb-6">
+        <div className="space-y-2 border-b border-[#514538] pb-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B18A52] font-semibold">
                 Personal Competitor Dossier
               </p>
-              <h1 className="font-serif italic font-normal text-3xl sm:text-4xl lg:text-5xl text-[#241E19] mt-1 tracking-tight">
+              <h1 className="font-serif italic font-normal text-3xl sm:text-4xl lg:text-5xl text-[#F3EDE3] mt-1 tracking-tight">
                 Participant <span className="text-[#B18A52]">Portal</span>
               </h1>
             </div>
@@ -90,13 +90,13 @@ export const ParticipantPage: React.FC = () => {
         <RoyalCard className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <label className="font-cinzel text-xs uppercase tracking-wider text-[#786F66] block font-semibold">
+              <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
                 Select Championship Ledger
               </label>
               <select
                 value={selectedTournamentId}
                 onChange={(e) => handleSelectTournament(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-[#CEBEA8] rounded-[12px] px-3.5 py-2.5 text-xs text-[#241E19] font-cinzel focus:outline-none focus:border-[#B18A52] transition shadow-inner"
+                className="w-full bg-[#302A25] border border-[#514538] rounded-[12px] px-3.5 py-2.5 text-xs text-[#F3EDE3] font-cinzel focus:outline-none focus:border-[#B18A52] transition shadow-inner"
               >
                 {tournaments.map((t) => (
                   <option key={t.id} value={t.id}>
@@ -107,7 +107,7 @@ export const ParticipantPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSearchPlayer} className="space-y-2">
-              <label className="font-cinzel text-xs uppercase tracking-wider text-[#786F66] block font-semibold">
+              <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
                 Locate Competitor by Name
               </label>
               <div className="flex gap-2">
@@ -116,7 +116,7 @@ export const ParticipantPage: React.FC = () => {
                   placeholder="e.g. Magnus Carlsen"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-[#FAF8F5] border border-[#CEBEA8] rounded-[12px] px-3.5 py-2 text-sm text-[#241E19] placeholder-[#786F66] focus:outline-none focus:border-[#B18A52] transition font-sans shadow-inner"
+                  className="flex-1 bg-[#302A25] border border-[#514538] rounded-[12px] px-3.5 py-2 text-sm text-[#F3EDE3] placeholder-[#B9AEA0]/50 focus:outline-none focus:border-[#B18A52] transition font-sans shadow-inner"
                 />
                 <RoyalButton type="submit" variant="primary">
                   Find
@@ -131,9 +131,9 @@ export const ParticipantPage: React.FC = () => {
         {/* Player Found Overview Card */}
         {matchedParticipant && tournament && (
           <RoyalCard className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-[#E2D9CB] pb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-[#514538] pb-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[#F4F0E8] border border-[#CEBEA8] p-2 flex items-center justify-center shrink-0 shadow-sm">
+                <div className="w-16 h-16 rounded-full bg-[#24211E] border border-[#514538] p-2 flex items-center justify-center shrink-0 shadow-sm">
                   <img
                     src="/grandmaster-emblem.png"
                     alt="Grandmaster Suite Emblem"
@@ -142,36 +142,36 @@ export const ParticipantPage: React.FC = () => {
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
-                    <h2 className="font-serif italic font-normal text-3xl text-[#241E19]">
+                    <h2 className="font-serif italic font-normal text-3xl text-[#F3EDE3]">
                       {matchedParticipant.name}
                     </h2>
                     {matchedParticipant.title && (
-                      <span className="font-cinzel text-xs uppercase font-bold text-[#FAF8F5] bg-[#B18A52] px-2.5 py-0.5 rounded-full shadow-sm">
+                      <span className="font-cinzel text-xs uppercase font-bold text-[#24211E] bg-[#B18A52] px-2.5 py-0.5 rounded-full shadow-sm">
                         {matchedParticipant.title}
                       </span>
                     )}
                   </div>
-                  <p className="font-cinzel text-xs text-[#786F66]">
-                    FIDE Rating: <span className="text-[#241E19] font-bold">{matchedParticipant.rating ?? 1200}</span> • Championship: <span className="text-[#241E19] font-medium">{tournament.name}</span>
+                  <p className="font-cinzel text-xs text-[#B9AEA0]">
+                    FIDE Rating: <span className="text-[#F3EDE3] font-bold">{matchedParticipant.rating ?? 1200}</span> • Championship: <span className="text-[#F3EDE3] font-medium">{tournament.name}</span>
                   </p>
                 </div>
               </div>
 
               {/* Stats badges & Share */}
               <div className="flex items-center gap-3 flex-wrap">
-                <div className="rounded-[14px] bg-[#F4F0E8] border border-[#CEBEA8] px-4 py-2.5 text-center min-w-[80px] shadow-sm">
-                  <span className="font-cinzel text-[10px] uppercase tracking-wider text-[#786F66] block font-semibold">
+                <div className="rounded-[14px] bg-[#302A25] border border-[#514538] px-4 py-2.5 text-center min-w-[80px] shadow-sm">
+                  <span className="font-cinzel text-[10px] uppercase tracking-wider text-[#B9AEA0] block font-semibold">
                     Score
                   </span>
                   <span className="font-cinzel text-2xl font-bold text-[#B18A52]">
                     {matchedParticipant.score ?? 0}
                   </span>
                 </div>
-                <div className="rounded-[14px] bg-[#F4F0E8] border border-[#CEBEA8] px-4 py-2.5 text-center min-w-[80px] shadow-sm">
-                  <span className="font-cinzel text-[10px] uppercase tracking-wider text-[#786F66] block font-semibold">
+                <div className="rounded-[14px] bg-[#302A25] border border-[#514538] px-4 py-2.5 text-center min-w-[80px] shadow-sm">
+                  <span className="font-cinzel text-[10px] uppercase tracking-wider text-[#B9AEA0] block font-semibold">
                     Buchholz
                   </span>
-                  <span className="font-cinzel text-2xl font-bold text-[#241E19]">
+                  <span className="font-cinzel text-2xl font-bold text-[#F3EDE3]">
                     {typeof matchedParticipant.buchholz === 'number' ? matchedParticipant.buchholz.toFixed(1) : 0}
                   </span>
                 </div>
@@ -190,25 +190,25 @@ export const ParticipantPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] border border-[#B18A52]/40 px-3 py-1 rounded-full bg-[#FAF8F5] font-semibold">
+                    <span className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] border border-[#B18A52]/40 px-3 py-1 rounded-full bg-[#302A25] font-semibold">
                       Round {tournament.currentRound} Fixture
                     </span>
                   </div>
-                  <span className="font-cinzel text-xs text-[#786F66]">
+                  <span className="font-cinzel text-xs text-[#B9AEA0]">
                     Status: {currentMatch.result ? 'Completed' : 'Awaiting Arbitration'}
                   </span>
                 </div>
 
-                <div className="rounded-[16px] bg-[#F4F0E8] border border-[#CEBEA8] p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+                <div className="rounded-[16px] bg-[#24211E] border border-[#514538] p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
                   {/* Board Number */}
                   <div className="flex flex-col items-center">
-                    <span className="font-cinzel text-[10px] uppercase tracking-widest text-[#786F66] font-semibold">
+                    <span className="font-cinzel text-[10px] uppercase tracking-widest text-[#B9AEA0] font-semibold">
                       Board
                     </span>
-                    <span className="font-cinzel text-4xl font-bold text-[#241E19] mt-0.5">
+                    <span className="font-cinzel text-4xl font-bold text-[#F3EDE3] mt-0.5">
                       #{currentMatch.board}
                     </span>
-                    <span className="font-cinzel text-[10px] text-[#786F66] mt-1">
+                    <span className="font-cinzel text-[10px] text-[#B9AEA0] mt-1">
                       Round {currentMatch.round}
                     </span>
                   </div>

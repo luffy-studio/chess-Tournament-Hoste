@@ -400,19 +400,19 @@ export const OnlineArenaPage: React.FC = () => {
     const myClock = isWhite ? whiteClock : blackClock
 
     return (
-      <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col selection:bg-[#B18A52]/20 selection:text-[#241E19]">
+      <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
         <RoyalHeader />
 
         {/* Match Top Bar */}
-        <div className="border-b border-[#E2D9CB] bg-[#FAF8F5]/90 backdrop-blur-md sticky top-0 z-20">
+        <div className="border-b border-[#514538] bg-[#2E2925]/90 backdrop-blur-md sticky top-0 z-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Link to="/arena" className="font-cinzel text-xs text-[#786F66] hover:text-[#241E19] transition font-semibold">
+              <Link to="/arena" className="font-cinzel text-xs text-[#B9AEA0] hover:text-[#F3EDE3] transition font-semibold">
                 ← Exit to Lobby
               </Link>
-              <span className="text-[#CEBEA8] text-xs">/</span>
+              <span className="text-[#514538] text-xs">/</span>
               <span className="font-cinzel text-xs text-[#B18A52] font-bold">
-                Room: <span className="font-mono text-[#241E19]">{roomId}</span>
+                Room: <span className="font-mono text-[#F3EDE3]">{roomId}</span>
               </span>
             </div>
 
@@ -425,7 +425,7 @@ export const OnlineArenaPage: React.FC = () => {
                 size="sm"
                 successMessage="Match challenge link copied!"
               />
-              <span className="font-cinzel text-xs text-[#786F66] hidden md:inline font-semibold">
+              <span className="font-cinzel text-xs text-[#B9AEA0] hidden md:inline font-semibold">
                 👁 {gameState?.spectatorsCount ?? 0} Spectating
               </span>
             </div>
@@ -434,12 +434,12 @@ export const OnlineArenaPage: React.FC = () => {
 
         {/* Promotion Dialog */}
         {promotionPending && (
-          <div className="fixed inset-0 z-50 bg-[#241E19]/70 flex items-center justify-center p-4 backdrop-blur-sm">
-            <RoyalCard className="max-w-sm w-full text-center space-y-4 shadow-xl border border-[#CEBEA8]">
+          <div className="fixed inset-0 z-50 bg-[#1A1816]/80 flex items-center justify-center p-4 backdrop-blur-sm">
+            <RoyalCard className="max-w-sm w-full text-center space-y-4 shadow-xl border border-[#514538]">
               <p className="font-cinzel text-xs uppercase tracking-[0.2em] text-[#B18A52] font-semibold">
                 Pawn Metamorphosis
               </p>
-              <h3 className="font-serif italic text-2xl text-[#241E19]">
+              <h3 className="font-serif italic text-2xl text-[#F3EDE3]">
                 Select Promotion Piece
               </h3>
               <div className="grid grid-cols-4 gap-3">
@@ -453,10 +453,10 @@ export const OnlineArenaPage: React.FC = () => {
                     key={p.type}
                     type="button"
                     onClick={() => executeMove(promotionPending.from, promotionPending.to, p.type)}
-                    className="p-3 bg-[#FAF8F5] hover:bg-[#F4F0E8] border border-[#CEBEA8] rounded-[12px] text-3xl transition flex flex-col items-center gap-1 active:scale-95 shadow-sm"
+                    className="p-3 bg-[#302A25] hover:bg-[#38312B] border border-[#514538] rounded-[12px] text-3xl transition flex flex-col items-center gap-1 active:scale-95 shadow-sm text-[#F3EDE3]"
                   >
                     <span>{p.sym}</span>
-                    <span className="font-cinzel text-[10px] text-[#786F66] font-semibold">{p.name}</span>
+                    <span className="font-cinzel text-[10px] text-[#B9AEA0] font-semibold">{p.name}</span>
                   </button>
                 ))}
               </div>
@@ -487,9 +487,9 @@ export const OnlineArenaPage: React.FC = () => {
                 className={`font-cinzel text-xl sm:text-2xl px-4 py-1.5 rounded-[12px] border font-bold transition-all ${
                   gameState?.turn === (isWhite ? 'b' : 'w')
                     ? opponentClock < 30
-                      ? 'border-[#9E3B3B] bg-[#9E3B3B]/10 text-[#9E3B3B] animate-pulse shadow-sm'
-                      : 'border-[#B18A52] bg-[#F4F0E8] text-[#241E19] shadow-sm'
-                    : 'border-[#CEBEA8] bg-[#FAF8F5] text-[#786F66]'
+                      ? 'border-[#9E3B3B] bg-[#9E3B3B]/20 text-[#B84A4A] animate-pulse shadow-sm'
+                      : 'border-[#B18A52] bg-[#38312B] text-[#F3EDE3] shadow-sm'
+                    : 'border-[#514538] bg-[#302A25] text-[#B9AEA0]'
                 }`}
               >
                 {formatClock(opponentClock)}
@@ -504,10 +504,10 @@ export const OnlineArenaPage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <span className="text-2xl text-[#B18A52]">{isWhite ? '♔' : '♚'}</span>
                 <div>
-                  <p className="font-serif font-medium text-sm text-[#241E19] truncate max-w-[150px] sm:max-w-[200px]">
+                  <p className="font-serif font-medium text-sm text-[#F3EDE3] truncate max-w-[150px] sm:max-w-[200px]">
                     {me?.name || playerName} {isSpectator && '(Spectator)'}
                   </p>
-                  <p className="font-cinzel text-[10px] text-[#786F66]">
+                  <p className="font-cinzel text-[10px] text-[#B9AEA0]">
                     {isSpectator ? 'Spectating' : isWhite ? 'White (You)' : 'Black (You)'} • 🟢 Active
                   </p>
                 </div>
@@ -518,9 +518,9 @@ export const OnlineArenaPage: React.FC = () => {
                 className={`font-cinzel text-xl sm:text-2xl px-4 py-1.5 rounded-[12px] border font-bold transition-all ${
                   gameState?.turn === myRole
                     ? myClock < 30
-                      ? 'border-[#9E3B3B] bg-[#9E3B3B]/10 text-[#9E3B3B] animate-pulse shadow-sm'
-                      : 'border-[#B18A52] bg-[#F4F0E8] text-[#241E19] shadow-sm'
-                    : 'border-[#CEBEA8] bg-[#FAF8F5] text-[#786F66]'
+                      ? 'border-[#9E3B3B] bg-[#9E3B3B]/20 text-[#B84A4A] animate-pulse shadow-sm'
+                      : 'border-[#B18A52] bg-[#38312B] text-[#F3EDE3] shadow-sm'
+                    : 'border-[#514538] bg-[#302A25] text-[#B9AEA0]'
                 }`}
               >
                 {formatClock(myClock)}
@@ -533,7 +533,7 @@ export const OnlineArenaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleOfferDraw}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-[#CEBEA8] bg-[#FAF8F5] hover:bg-[#F4F0E8] font-cinzel text-xs text-[#241E19] transition shadow-sm font-semibold"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-[#514538] bg-[#302A25] hover:bg-[#38312B] font-cinzel text-xs text-[#F3EDE3] transition shadow-sm font-semibold"
                 >
                   <HeartHandshake size={14} className="text-[#B18A52]" />
                   <span>Offer Draw</span>
@@ -541,7 +541,7 @@ export const OnlineArenaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleResign}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-[#9E3B3B]/30 bg-[#FAF8F5] hover:bg-[#9E3B3B]/10 font-cinzel text-xs text-[#9E3B3B] transition shadow-sm font-semibold"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border border-[#9E3B3B]/40 bg-[#302A25] hover:bg-[#9E3B3B]/20 font-cinzel text-xs text-[#9E3B3B] transition shadow-sm font-semibold"
                 >
                   <Flag size={14} />
                   <span>Resign</span>
@@ -549,7 +549,7 @@ export const OnlineArenaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFlipped(!flipped)}
-                  className="px-4 py-2 rounded-full border border-[#CEBEA8] bg-[#FAF8F5] hover:bg-[#F4F0E8] font-cinzel text-xs text-[#786F66] hover:text-[#241E19] transition shadow-sm"
+                  className="px-4 py-2 rounded-full border border-[#514538] bg-[#302A25] hover:bg-[#38312B] font-cinzel text-xs text-[#B9AEA0] hover:text-[#F3EDE3] transition shadow-sm"
                   title="Flip Board"
                 >
                   <RotateCcw size={14} />
@@ -677,24 +677,24 @@ export const OnlineArenaPage: React.FC = () => {
 
   // Lobby View (No Room ID)
   return (
-    <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col selection:bg-[#B18A52]/20 selection:text-[#241E19]">
+    <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
       <RoyalHeader />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
         {/* Editorial Hero Banner */}
-        <div className="space-y-4 border-b border-[#E2D9CB] pb-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#CEBEA8] bg-[#FAF8F5] shadow-sm">
+        <div className="space-y-4 border-b border-[#514538] pb-8">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#514538] bg-[#2E2925] shadow-sm">
             <Swords size={14} className="text-[#B18A52]" />
             <span className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#B18A52] font-semibold">
               Live Championship Arena
             </span>
           </div>
 
-          <h1 className="font-serif italic font-normal text-3xl sm:text-4xl lg:text-5xl text-[#241E19] tracking-tight">
+          <h1 className="font-serif italic font-normal text-3xl sm:text-4xl lg:text-5xl text-[#F3EDE3] tracking-tight">
             Grandmaster <span className="text-[#B18A52]">Online Arena</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-[#786F66] max-w-3xl leading-relaxed font-sans">
+          <p className="text-sm sm:text-base text-[#B9AEA0] max-w-3xl leading-relaxed font-sans">
             Execute live chess fixtures with authoritative move legality verification, synchronized Fischer decrement clocks, spectator broadcasts, and instant challenge links.
           </p>
         </div>
@@ -703,30 +703,30 @@ export const OnlineArenaPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Create Match Column */}
           <RoyalCard className="lg:col-span-1 space-y-6">
-            <div className="border-b border-[#E2D9CB] pb-3">
+            <div className="border-b border-[#514538] pb-3">
               <p className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] font-semibold">
                 Arena Genesis
               </p>
-              <h2 className="font-serif italic text-2xl text-[#241E19] mt-0.5">
+              <h2 className="font-serif italic text-2xl text-[#F3EDE3] mt-0.5">
                 Issue a Challenge
               </h2>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="font-cinzel text-xs uppercase tracking-wider text-[#786F66] block font-semibold">
+                <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
                   Competitor Name
                 </label>
                 <input
                   type="text"
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
-                  className="w-full bg-[#FAF8F5] border border-[#CEBEA8] rounded-[12px] px-3.5 py-2 text-sm text-[#241E19] placeholder-[#786F66] focus:outline-none focus:border-[#B18A52] transition font-sans shadow-inner"
+                  className="w-full bg-[#302A25] border border-[#514538] rounded-[12px] px-3.5 py-2 text-sm text-[#F3EDE3] placeholder-[#B9AEA0]/50 focus:outline-none focus:border-[#B18A52] transition font-sans shadow-inner"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="font-cinzel text-xs uppercase tracking-wider text-[#786F66] block font-semibold">
+                <label className="font-cinzel text-xs uppercase tracking-wider text-[#B9AEA0] block font-semibold">
                   Time Control
                 </label>
                 <div className="grid grid-cols-2 gap-2">

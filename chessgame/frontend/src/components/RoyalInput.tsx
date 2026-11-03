@@ -18,15 +18,15 @@ export const RoyalInput: React.FC<RoyalInputProps> = ({
   return (
     <div className="w-full space-y-1.5">
       {label && (
-        <label htmlFor={inputId} className="block text-xs uppercase tracking-wider font-cinzel text-[#786F66]">
+        <label htmlFor={inputId} className="block text-xs uppercase tracking-wider font-cinzel text-[#B9AEA0] font-semibold">
           {label}
         </label>
       )}
       <input
         id={inputId}
-        className={`w-full bg-[#FAF8F5] border ${
-          error ? 'border-[#9E3B3B]' : 'border-[#CEBEA8] focus:border-[#B18A52] focus:ring-1 focus:ring-[#B18A52]'
-        } rounded-[10px] px-3.5 py-2.5 text-[#241E19] placeholder-[#9E948A] text-sm transition font-sans focus:outline-none ${className}`}
+        className={`w-full bg-[#302A25] border ${
+          error ? 'border-[#9E3B3B]' : 'border-[#514538] focus:border-[#B18A52] focus:ring-1 focus:ring-[#B18A52]'
+        } rounded-[10px] px-3.5 py-2.5 text-[#F3EDE3] placeholder-[#B9AEA0]/50 text-sm transition font-sans focus:outline-none ${className}`}
         {...props}
       />
       {error && (

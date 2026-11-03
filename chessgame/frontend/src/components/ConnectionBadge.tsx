@@ -85,8 +85,8 @@ export const ConnectionBadge: React.FC<ConnectionBadgeProps> = ({
     },
     disconnected: {
       dot: 'bg-[#9E948A]',
-      text: 'text-[#786F66]',
-      bg: 'bg-[#FAF8F5] border-[#CEBEA8]',
+      text: 'text-[#B9AEA0]',
+      bg: 'bg-[#302A25] border-[#514538]',
       label: 'Offline Cache',
       tooltip: 'Offline cache active',
     },

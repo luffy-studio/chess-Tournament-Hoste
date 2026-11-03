@@ -4,29 +4,40 @@
 
 @layer base {
   :root {
-    --gm-parchment: #F4F0E8;
-    --gm-surface: #FAF8F5;
-    --gm-border: #E2D9CB;
-    --gm-walnut: #241E19;
-    --gm-walnut-muted: #3A342E;
-    --gm-umber: #786F66;
+    /* Warm Dark Luxury Palette */
+    --gm-main-bg: #24211E;
+    --gm-secondary-bg: #2E2925;
+    --gm-elevated: #38312B;
+    --gm-input-bg: #302A25;
+    --gm-text-primary: #F3EDE3;
+    --gm-text-secondary: #B9AEA0;
+    --gm-border: #514538;
+    --gm-border-strong: #665747;
     --gm-gold: #B18A52;
+    --gm-gold-hover: #C49D63;
     --gm-bronze: #8C6B3E;
     --gm-sage: #5B6E57;
     --gm-crimson: #9E3B3B;
+
+    /* Semantic Compatibility Tokens */
+    --gm-parchment: #24211E;
+    --gm-surface: #2E2925;
+    --gm-walnut: #F3EDE3;
+    --gm-walnut-muted: #B9AEA0;
+    --gm-umber: #B9AEA0;
   }
 
   body {
-    background-color: var(--gm-parchment);
-    color: var(--gm-walnut);
+    background-color: var(--gm-main-bg);
+    color: var(--gm-text-primary);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     margin: 0;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(246, 242, 234, 0.8) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(226, 217, 203, 0.4) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(46, 41, 37, 0.7) 0px, transparent 60%),
+      radial-gradient(at 100% 100%, rgba(32, 29, 26, 0.9) 0px, transparent 50%);
     background-attachment: fixed;
   }
 
@@ -37,79 +48,57 @@
   }
 }
 
-/* Subtle Editorial Parchment Wash */
+/* Warm Dark Luxury Parchment Wash */
 .gm-parchment-wash {
-  background: linear-gradient(180deg, #F9F7F3 0%, #F4F0E8 100%);
+  background: linear-gradient(180deg, #2E2925 0%, #24211E 100%);
 }
 
-/* Editorial Surface Card */
+/* Warm Dark Luxury Surface Card */
 .gm-card {
-  background-color: #FAF8F5;
-  border: 1px solid #E2D9CB;
+  background-color: #2E2925;
+  border: 1px solid #514538;
   border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(36, 30, 25, 0.04), 0 4px 12px rgba(36, 30, 25, 0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* Primary Institutional Button */
 .gm-btn-primary {
-  background-color: #241E19;
-  color: #FAF8F5;
-  border: 1px solid #241E19;
-  border-radius: 9999px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  transition: all 0.15s ease-in-out;
-}
-.gm-btn-primary:hover {
-  background-color: #3A342E;
-  border-color: #3A342E;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(36, 30, 25, 0.12);
-}
-
-/* Secondary Editorial Button */
-.gm-btn-secondary {
-  background-color: #FAF8F5;
-  color: #241E19;
-  border: 1px solid #CEBEA8;
-  border-radius: 9999px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  transition: all 0.15s ease-in-out;
-}
-.gm-btn-secondary:hover {
-  background-color: #F4F0E8;
-  border-color: #B18A52;
-  color: #241E19;
-}
-
-/* Antique Gold Accent Button */
-.gm-btn-gold {
   background-color: #B18A52;
-  color: #FAF8F5;
+  color: #24211E;
   border: 1px solid #B18A52;
   border-radius: 9999px;
   font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  transition: all 0.15s ease-in-out;
+  font-weight: 600;
+  transition: all 150ms ease-in-out;
 }
-.gm-btn-gold:hover {
-  background-color: #8C6B3E;
-  border-color: #8C6B3E;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(177, 138, 82, 0.2);
+.gm-btn-primary:hover {
+  background-color: #C49D63;
 }
 
-/* Subtle Editorial Scrollbars */
+/* Form Input Styling */
+.gm-input {
+  background-color: #302A25;
+  border: 1px solid #514538;
+  border-radius: 12px;
+  color: #F3EDE3;
+  transition: all 150ms ease-in-out;
+}
+.gm-input:focus {
+  outline: none;
+  border-color: #B18A52;
+  box-shadow: 0 0 0 1px #B18A52;
+}
+
+/* Custom Styled Scrollbars */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #F4F0E8;
+  background: #24211E;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D5C9B8;
+  background: #514538;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {

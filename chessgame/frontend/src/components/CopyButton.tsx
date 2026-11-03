@@ -74,17 +74,17 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
 
   const variantStyles = {
     primary: copied
-      ? 'bg-[#5B6E57] text-[#FAF8F5] font-medium shadow-sm'
-      : 'bg-[#241E19] text-[#FAF8F5] hover:bg-[#3A342E]',
+      ? 'bg-[#5B6E57] text-[#F3EDE3] font-medium shadow-sm'
+      : 'bg-[#B18A52] text-[#24211E] hover:bg-[#C49D63] font-semibold',
     secondary: copied
-      ? 'bg-[#5B6E57]/15 text-[#5B6E57] border border-[#5B6E57]/40'
-      : 'bg-[#FAF8F5] hover:bg-[#F4F0E8] text-[#241E19] border border-[#CEBEA8] hover:border-[#B18A52]',
+      ? 'bg-[#5B6E57]/20 text-[#6E8B67] border border-[#5B6E57]/50'
+      : 'bg-[#302A25] hover:bg-[#38312B] text-[#F3EDE3] border border-[#514538] hover:border-[#B18A52]/60',
     subtle: copied
-      ? 'bg-[#5B6E57]/15 text-[#5B6E57] border border-[#5B6E57]/30'
-      : 'bg-transparent hover:bg-[#FAF8F5] text-[#786F66] hover:text-[#241E19] border border-transparent',
+      ? 'bg-[#5B6E57]/20 text-[#6E8B67] border border-[#5B6E57]/40'
+      : 'bg-transparent hover:bg-[#302A25] text-[#B9AEA0] hover:text-[#F3EDE3] border border-transparent',
     'icon-only': copied
-      ? 'p-2 bg-[#5B6E57]/15 text-[#5B6E57] border border-[#5B6E57]/40 rounded-full'
-      : 'p-2 bg-[#FAF8F5] hover:bg-[#F4F0E8] text-[#786F66] hover:text-[#241E19] border border-[#CEBEA8] rounded-full',
+      ? 'p-2 bg-[#5B6E57]/20 text-[#6E8B67] border border-[#5B6E57]/50 rounded-full'
+      : 'p-2 bg-[#302A25] hover:bg-[#38312B] text-[#B9AEA0] hover:text-[#F3EDE3] border border-[#514538] rounded-full',
   }[variant];
 
   const sizeStyles =

@@ -6,12 +6,12 @@ interface ModeBadgeProps {
 
 const MODE_CONFIG: Record<string, { label: string; className: string }> = {
   swiss: {
-    label: 'FIDE Swiss System',
-    className: 'bg-[#F4F0E8] text-[#241E19] border border-[#CEBEA8]',
+    label: 'Swiss System',
+    className: 'bg-[#302A25] text-[#F3EDE3] border border-[#514538]',
   },
   roundrobin: {
     label: 'Berger Round Robin',
-    className: 'bg-[#FAF8F5] text-[#8C6B3E] border border-[#B18A52]/30',
+    className: 'bg-[#302A25] text-[#B18A52] border border-[#B18A52]/40',
   },
 }
 
@@ -20,7 +20,7 @@ export const ModeBadge: React.FC<ModeBadgeProps> = ({ mode }) => {
   const key = normalized.includes('round') ? 'roundrobin' : 'swiss'
   const config = MODE_CONFIG[key] ?? {
     label: mode,
-    className: 'bg-[#FAF8F5] text-[#786F66] border border-[#E2D9CB]',
+    className: 'bg-[#302A25] text-[#B9AEA0] border border-[#514538]',
   }
 
   return (

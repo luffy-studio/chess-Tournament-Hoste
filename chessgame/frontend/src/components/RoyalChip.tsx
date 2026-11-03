@@ -13,8 +13,8 @@ export const RoyalChip: React.FC<RoyalChipProps> = ({
   ...props
 }) => {
   const activeStyles = active
-    ? 'bg-[#241E19] text-[#FAF8F5] border-[#241E19] font-semibold shadow-sm'
-    : 'bg-[#FAF8F5] text-[#786F66] border-[#CEBEA8] hover:border-[#B18A52] hover:text-[#241E19]'
+    ? 'bg-[#B18A52] text-[#24211E] border-[#B18A52] font-semibold shadow-sm'
+    : 'bg-[#302A25] text-[#B9AEA0] border-[#514538] hover:border-[#B18A52]/60 hover:text-[#F3EDE3]'
 
   return (
     <button

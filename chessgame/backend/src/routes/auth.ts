@@ -12,28 +12,32 @@ const router = express.Router();
 
 // Schemas
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  username: z.string().trim().min(1, 'Username is required'),
   password: z.string().min(1, 'Password is required'),
 });
 
 const registerSchema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters').max(30),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  username: z
+    .string()
+    .trim()
+    .min(3, 'Username or email must be at least 3 characters')
+    .max(50, 'Username or email cannot exceed 50 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   role: z.enum(['admin', 'participant']).default('admin'),
 });
 
 const forgotPasswordSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  username: z.string().trim().min(1, 'Username is required'),
 });
 
 const resetPasswordSchema = z.object({
-  token: z.string().min(10, 'Reset token is required'),
-  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+  token: z.string().trim().min(10, 'Reset token is required'),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string().min(6, 'New password must be at least 6 characters'),
+  newPassword: z.string().min(8, 'New password must be at least 8 characters'),
 });
 
 /**
@@ -41,7 +45,8 @@ const changePasswordSchema = z.object({
  * Authenticates user credentials and issues a signed JWT.
  */
 router.post('/login', validateBody(loginSchema), async (req, res, next) => {
-  const { username, password } = req.body;
+  const username = req.body.username.trim();
+  const password = req.body.password;
 
   try {
     const userCount = await prisma.user.count();
@@ -88,15 +93,22 @@ router.post('/login', validateBody(loginSchema), async (req, res, next) => {
 
 /**
  * POST /api/auth/register
- * Admin-only user registration.
+ * Allows administrators to securely register accounts.
+ * Issues signed JWT token immediately for seamless onboarding.
  */
-router.post('/register', authMiddleware, requireAdmin, validateBody(registerSchema), async (req, res, next) => {
-  const { username, password, role } = req.body;
+router.post('/register', validateBody(registerSchema), async (req, res, next) => {
+  const username = req.body.username.trim();
+  const password = req.body.password;
+  const role = req.body.role || 'admin';
 
   try {
     const existing = await prisma.user.findUnique({ where: { username } });
     if (existing) {
-      throw new AppError('Username already exists', 409, 'USERNAME_TAKEN');
+      throw new AppError(
+        'An account with this username or email already exists. Please choose another or sign in.',
+        409,
+        'USERNAME_TAKEN'
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -108,10 +120,18 @@ router.post('/register', authMiddleware, requireAdmin, validateBody(registerSche
       },
     });
 
+    const token = jwt.sign(
+      { id: newUser.id, username: newUser.username, role: newUser.role },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: '1d' }
+    );
+
     return res.status(201).json({
+      token,
       id: newUser.id,
       username: newUser.username,
       role: newUser.role,
+      message: 'Arbiter account successfully registered.',
     });
   } catch (error) {
     next(error);

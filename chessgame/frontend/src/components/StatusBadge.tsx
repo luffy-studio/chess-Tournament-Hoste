@@ -7,19 +7,19 @@ interface StatusBadgeProps {
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   setup: {
     label: 'Setup Phase',
-    className: 'bg-[#FAF8F5] text-[#786F66] border border-[#CEBEA8]',
+    className: 'bg-[#302A25] text-[#B9AEA0] border border-[#514538]',
   },
   ongoing: {
     label: 'Live Arbitration',
-    className: 'bg-[#5B6E57]/10 text-[#5B6E57] border border-[#5B6E57]/30',
+    className: 'bg-[#5B6E57]/20 text-[#6E8B67] border border-[#5B6E57]/50',
   },
   completed: {
     label: 'Ratified & Concluded',
-    className: 'bg-[#B18A52]/10 text-[#B18A52] border border-[#B18A52]/30',
+    className: 'bg-[#B18A52]/20 text-[#C49D63] border border-[#B18A52]/50',
   },
   paused: {
     label: 'On Hold',
-    className: 'bg-[#9E3B3B]/10 text-[#9E3B3B] border border-[#9E3B3B]/30',
+    className: 'bg-[#9E3B3B]/20 text-[#B84A4A] border border-[#9E3B3B]/50',
   },
 }
 
@@ -27,7 +27,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const normalized = status.toLowerCase()
   const config = STATUS_CONFIG[normalized] ?? {
     label: status,
-    className: 'bg-[#FAF8F5] text-[#786F66] border border-[#CEBEA8]',
+    className: 'bg-[#302A25] text-[#B9AEA0] border border-[#514538]',
   }
 
   return (

@@ -8,21 +8,29 @@ export default {
     extend: {
       colors: {
         gm: {
-          parchment: "#F4F0E8",
-          surface: "#FAF8F5",
-          surfaceHover: "#F6F2EC",
-          border: "#E2D9CB",
-          borderStrong: "#CEBEA8",
-          walnut: "#241E19",
-          walnutMuted: "#3A342E",
-          umber: "#786F66",
-          umberLight: "#A69E95",
+          bg: "#24211E",
+          bgSecondary: "#2E2925",
+          elevated: "#38312B",
+          input: "#302A25",
+          textPrimary: "#F3EDE3",
+          textSecondary: "#B9AEA0",
+          border: "#514538",
+          borderStrong: "#665747",
           gold: "#B18A52",
-          bronze: "#8C6B3E",
-          goldLight: "#DBC7A2",
+          goldHover: "#C49D63",
+          goldMuted: "#8C6B3E",
           sage: "#5B6E57",
           crimson: "#9E3B3B",
-          boardFrame: "#3D3024",
+
+          // Adaptive mappings for seamless continuity
+          parchment: "#24211E",
+          surface: "#2E2925",
+          surfaceHover: "#38312B",
+          walnut: "#F3EDE3",
+          walnutMuted: "#B9AEA0",
+          umber: "#B9AEA0",
+          umberLight: "#D1C7BA",
+          boardFrame: "#2A241F",
           boardLight: "#E8DFCF",
           boardDark: "#6E553E",
         }
@@ -38,8 +46,8 @@ export default {
         card: '14px',
       },
       boxShadow: {
-        'subtle': '0 1px 3px rgba(36, 30, 25, 0.04), 0 4px 12px rgba(36, 30, 25, 0.03)',
-        'elevated': '0 4px 20px rgba(36, 30, 25, 0.06)',
+        'subtle': '0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.25)',
+        'elevated': '0 4px 20px rgba(0, 0, 0, 0.4)',
       }
     },
   },

@@ -66,7 +66,7 @@ export const AdminTournamentPage: React.FC = () => {
 
   if (loading && !tournament) {
     return (
-      <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col">
+      <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col">
         <RoyalHeader />
         <main className="flex-1 flex items-center justify-center">
           <RoyalLoading message="Loading arbiter console…" />
@@ -78,7 +78,7 @@ export const AdminTournamentPage: React.FC = () => {
 
   if (!tournament) {
     return (
-      <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col">
+      <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col">
         <RoyalHeader />
         <main className="flex-1 flex items-center justify-center px-4 py-20">
           <RoyalEmpty
@@ -307,26 +307,26 @@ export const AdminTournamentPage: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-[#F4F0E8] text-[#241E19] font-sans flex flex-col selection:bg-[#B18A52]/20 selection:text-[#241E19]">
+    <div className="min-h-screen bg-[#24211E] text-[#F3EDE3] font-sans flex flex-col selection:bg-[#B18A52]/30 selection:text-[#F3EDE3]">
       <RoyalHeader />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
         {/* Top Header Card */}
         <RoyalCard className="space-y-5">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#E2D9CB] pb-5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#514538] pb-5">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <Link to="/admin/dashboard" className="font-cinzel text-xs text-[#786F66] hover:text-[#241E19] transition font-semibold">
+                <Link to="/admin/dashboard" className="font-cinzel text-xs text-[#B9AEA0] hover:text-[#F3EDE3] transition font-semibold">
                   ← Arbiter Console
                 </Link>
-                <span className="text-[#CEBEA8] text-xs">/</span>
+                <span className="text-[#514538] text-xs">/</span>
                 <span className="font-cinzel text-xs uppercase tracking-wider text-[#B18A52] font-semibold">
                   Championship Control
                 </span>
-                <span className="text-[#CEBEA8] text-xs">•</span>
+                <span className="text-[#514538] text-xs">•</span>
                 <ConnectionBadge socket={socket} />
               </div>
-              <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#241E19]">
+              <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#F3EDE3]">
                 {tournament.name}
               </h1>
               <div className="flex flex-wrap items-center gap-2 pt-1">
