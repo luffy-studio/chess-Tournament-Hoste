@@ -1,0 +1,12 @@
+{
+  "name": "grandmaster-suite-root",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Sarvagya Sharma",
+  "license": "Custom (Sarvagya Sharma)",
+  "scripts": {
+    "build": "cd chessgame && npm install && npm run build:server",
+    "build:server": "cd chessgame && npm install && npm run build:server",
+    "start": "cd chessgame && node backend/dist/index.js"
+  }
+}

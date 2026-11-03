@@ -14,6 +14,8 @@
     "build:backend": "npm run build --workspace=chess-backend",
     "build:frontend": "npm run build --workspace=chess-tournament-platform",
     "build": "npm run build:engine && npm run build:backend && npm run build:frontend",
+    "build:server": "npm run build:engine && npm run build:backend && npx prisma generate --schema=backend/prisma/schema.prisma && npx prisma db push --schema=backend/prisma/schema.prisma",
+    "start": "node backend/dist/index.js",
     "dev:frontend": "npm run dev --workspace=chess-tournament-platform",
     "dev:backend": "npm run dev --workspace=chess-backend",
     "dev": "npm run dev:frontend & npm run dev:backend",

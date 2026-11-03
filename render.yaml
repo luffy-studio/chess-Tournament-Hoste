@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: grandmaster-backend
+    env: node
+    plan: free
+    rootDir: chessgame
+    buildCommand: npm install && npm run build:server
+    startCommand: node backend/dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"
+      - key: ALLOW_LAN_CORS
+        value: "true"
