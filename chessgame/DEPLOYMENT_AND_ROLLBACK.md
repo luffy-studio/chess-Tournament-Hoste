@@ -93,3 +93,23 @@ docker compose logs -f chess-app
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | Comma-separated allowlist of trusted browser domains |
 | `ALLOW_LAN_CORS` | `true` | Permits private network RFC-1918 addresses in venue LAN mode |
 | `DATABASE_URL` | `file:./dev.db` | SQLite database file path or PostgreSQL connection string |
+
+---
+
+## 6. Render.com Deployment Configuration
+
+When deploying the backend as a Web Service on Render:
+
+| Field in Render Settings | Required Value |
+|---|---|
+| **Root Directory** | `chessgame` |
+| **Environment** | `Node` |
+| **Build Command** | `npm install && npm run build:server` |
+| **Start Command** | `node backend/dist/index.js` |
+
+### Environment Variables on Render
+- `NODE_ENV`: `production`
+- `PORT`: `10000`
+- `JWT_SECRET`: *(Click 'Generate' or enter a strong secret)*
+- `CORS_ALLOWED_ORIGINS`: `*`
+- `ALLOW_LAN_CORS`: `true`
